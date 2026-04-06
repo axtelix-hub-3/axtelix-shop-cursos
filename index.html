@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nova Tech Edu — Cursos Digitales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #020510;
+      --bg2: #080f1e;
+      --bg3: #0a1628;
+      --cyan: #00f5ff;
+      --purple: #7c3aed;
+      --pink: #ff2d78;
+      --green: #00ff88;
+      --orange: #ff6b35;
+      --yellow: #ffd700;
+      --text: #e2e8f0;
+      --muted: #4a5568;
+      --font-d: 'Orbitron', monospace;
+      --font-b: 'Rajdhani', sans-serif;
+      --font-m: 'Share Tech Mono', monospace;
+      --r: 12px;
+      --t: 0.3s cubic-bezier(0.4,0,0.2,1);
+      --glow-c: 0 0 20px rgba(0,245,255,0.5);
+      --glow-p: 0 0 20px rgba(124,58,237,0.5);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:16px;line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    button{cursor:pointer;border:none;outline:none;font-family:inherit}
+
+    /* CANVAS + OVERLAYS */
+    #bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+    .grid-overlay{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,245,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+    .scanline{position:fixed;inset:0;z-index:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;animation:scanmove 8s linear infinite}
+    @keyframes scanmove{0%{background-position:0 0}100%{background-position:0 100px}}
+    .orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+    .orb1{width:500px;height:500px;background:rgba(124,58,237,0.1);top:-150px;right:-150px;animation:f1 9s ease-in-out infinite}
+    .orb2{width:400px;height:400px;background:rgba(0,245,255,0.07);bottom:10%;left:-120px;animation:f2 11s ease-in-out infinite}
+    .orb3{width:300px;height:300px;background:rgba(255,45,120,0.07);top:40%;right:3%;animation:f3 13s ease-in-out infinite}
+    @keyframes f1{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(40px) scale(1.06)}}
+    @keyframes f2{0%,100%{transform:translateY(0)}50%{transform:translateY(-30px)}}
+    @keyframes f3{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(25px) rotate(6deg)}}
+    .page-wrapper{position:relative;z-index:1}
+
+    /* NAVBAR */
+    .navbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0.9rem 2rem;background:rgba(2,5,16,0.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,245,255,0.18)}
+    .navbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent)}
+    .navbar-logo{font-family:var(--font-d);font-size:1.15rem;font-weight:900;color:var(--cyan);letter-spacing:4px;text-shadow:0 0 30px rgba(0,245,255,0.8);position:relative}
+    .navbar-logo span{color:var(--purple)}
+    .navbar-logo::before{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),var(--purple));box-shadow:0 0 8px var(--cyan)}
+    .navbar-right{display:flex;align-items:center;gap:0.8rem}
+    .navbar-cta{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-family:var(--font-d);font-size:0.6rem;font-weight:700;letter-spacing:2px;padding:0.5rem 1.2rem;border-radius:3px;transition:var(--t);text-transform:uppercase;box-shadow:0 0 15px rgba(0,245,255,0.3)}
+    .navbar-cta:hover{transform:translateY(-2px);box-shadow:0 0 25px rgba(0,245,255,0.6)}
+    .owner-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:0.6rem;padding:0.5rem 1rem;border-radius:3px;font-family:var(--font-m);letter-spacing:1px;transition:var(--t)}
+    .owner-btn:hover{border-color:var(--purple);color:var(--purple)}
+    .owner-btn.active{border-color:var(--green);color:var(--green);box-shadow:0 0 10px rgba(0,255,136,0.3)}
+
+    /* HERO */
+    .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6rem 1.5rem 4rem;position:relative}
+    .hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.3);color:var(--cyan);font-family:var(--font-m);font-size:0.7rem;letter-spacing:4px;padding:0.4rem 1.2rem;border-radius:2px;margin-bottom:2rem;animation:fadeDown 0.8s ease forwards;box-shadow:inset 0 0 20px rgba(0,245,255,0.05),0 0 20px rgba(0,245,255,0.1)}
+    .hero-badge::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pdot 2s infinite;box-shadow:0 0 8px var(--green)}
+    @keyframes pdot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,255,136,0.7)}50%{opacity:0.6;box-shadow:0 0 0 8px rgba(0,255,136,0)}}
+    .hero-title{font-family:var(--font-d);font-size:clamp(2.5rem,9vw,6.5rem);font-weight:900;line-height:1.02;letter-spacing:-2px;margin-bottom:1.5rem;animation:fadeUp 1s ease 0.2s both}
+    .hero-title .l1{display:block;color:var(--text);text-shadow:0 0 40px rgba(255,255,255,0.1)}
+    .hero-title .l2{display:block;background:linear-gradient(135deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(0,245,255,0.4))}
+    .hero-sub{font-size:clamp(1rem,2.5vw,1.3rem);color:var(--muted);max-width:600px;margin:0 auto 2.5rem;animation:fadeUp 1s ease 0.4s both}
+    .hero-sub strong{color:var(--cyan);text-shadow:0 0 10px rgba(0,245,255,0.4)}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp 1s ease 0.6s both}
+    .btn-prim{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-family:var(--font-d);font-size:0.65rem;font-weight:700;letter-spacing:2px;padding:0.9rem 2.2rem;border-radius:3px;transition:var(--t);text-transform:uppercase;position:relative;overflow:hidden;box-shadow:0 0 20px rgba(0,245,255,0.3)}
+    .btn-prim::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.15);transform:translateX(-100%) skewX(-15deg);transition:0.5s}
+    .btn-prim:hover::before{transform:translateX(150%) skewX(-15deg)}
+    .btn-prim:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,245,255,0.5)}
+    .btn-out{background:transparent;color:var(--cyan);font-family:var(--font-d);font-size:0.65rem;font-weight:700;letter-spacing:2px;padding:0.9rem 2.2rem;border:1px solid rgba(0,245,255,0.4);border-radius:3px;transition:var(--t);text-transform:uppercase}
+    .btn-out:hover{background:rgba(0,245,255,0.08);border-color:var(--cyan);transform:translateY(-3px);box-shadow:var(--glow-c)}
+    .hero-stats{display:flex;gap:3rem;margin-top:4rem;flex-wrap:wrap;justify-content:center;animation:fadeUp 1s ease 0.8s both}
+    .stat-item{text-align:center;position:relative}
+    .stat-item::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:40px;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+    .stat-num{font-family:var(--font-d);font-size:2.2rem;font-weight:900;color:var(--cyan);text-shadow:0 0 20px rgba(0,245,255,0.6)}
+    .stat-lbl{font-size:0.75rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+    /* TICKER */
+    .ticker-wrap{overflow:hidden;border-top:1px solid rgba(0,245,255,0.1);border-bottom:1px solid rgba(0,245,255,0.1);padding:0.7rem 0;background:linear-gradient(90deg,rgba(0,245,255,0.03),rgba(124,58,237,0.03))}
+    .ticker-track{display:flex;gap:3rem;white-space:nowrap;animation:tick 28s linear infinite}
+    .ticker-item{font-family:var(--font-m);font-size:0.65rem;color:var(--muted);letter-spacing:3px;display:flex;align-items:center;gap:0.5rem}
+    .ticker-item span{color:var(--cyan)}
+    @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+    /* SECTION BASE */
+    section{padding:5rem 1.5rem;max-width:1200px;margin:0 auto}
+    .sec-lbl{font-family:var(--font-m);font-size:0.7rem;letter-spacing:5px;color:var(--cyan);text-transform:uppercase;margin-bottom:0.5rem}
+    .sec-title{font-family:var(--font-d);font-size:clamp(1.8rem,4vw,3rem);font-weight:900;margin-bottom:1rem}
+    .sec-desc{color:var(--muted);max-width:540px;margin-bottom:3rem;font-size:1.05rem}
+    .div-line{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.25),rgba(124,58,237,0.25),transparent);max-width:1200px;margin:0 auto;position:relative}
+    .div-line::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;background:var(--cyan);border-radius:50%;box-shadow:0 0 15px var(--cyan),0 0 30px rgba(0,245,255,0.4)}
+
+    /* STOCK BADGE */
+    .stock-badge{display:inline-flex;align-items:center;gap:0.3rem;font-family:var(--font-m);font-size:0.55rem;letter-spacing:2px;padding:0.25rem 0.6rem;border-radius:2px;text-transform:uppercase;position:absolute;top:1rem;right:1rem;z-index:5}
+    .stock-badge.in{background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.4);color:var(--green)}
+    .stock-badge.in::before{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;animation:pdot 2s infinite}
+    .stock-badge.out{background:rgba(255,45,120,0.08);border:1px solid rgba(255,45,120,0.4);color:var(--pink)}
+    .stock-badge.out::before{content:'✕';font-size:0.5rem}
+
+    /* COURSES GRID */
+    .courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.8rem}
+
+    /* ===================== CARD — Glow elegante (sin tilt) ===================== */
+    .course-card{
+      background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(8,15,30,0.98));
+      border:1px solid rgba(0,245,255,0.1);
+      border-radius:var(--r);
+      overflow:hidden;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      transition:border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+    }
+    /* Línea superior accent */
+    .course-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,var(--card-accent,var(--cyan)),transparent);
+      opacity:0;transition:opacity 0.35s ease;
+    }
+    /* Glow interno al hover */
+    .course-card:not(.oos):hover{
+      border-color:rgba(0,245,255,0.35);
+      box-shadow:0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,245,255,0.08), 0 0 40px -8px var(--card-accent,var(--cyan));
+      transform:translateY(-4px);
+    }
+    .course-card:not(.oos):hover::before{opacity:1}
+    .course-card.oos{opacity:0.55}
+    .course-card.oos .card-foot{pointer-events:none}
+
+    /* Card corner decorations */
+    .card-corner{position:absolute;width:14px;height:14px;z-index:3;transition:opacity 0.3s}
+    .card-corner.tl{top:0;left:0;border-top:2px solid var(--card-accent,var(--cyan));border-left:2px solid var(--card-accent,var(--cyan));opacity:0.4}
+    .card-corner.tr{top:0;right:0;border-top:2px solid var(--card-accent,var(--cyan));border-right:2px solid var(--card-accent,var(--cyan));opacity:0.4}
+    .card-corner.bl{bottom:0;left:0;border-bottom:2px solid var(--card-accent,var(--cyan));border-left:2px solid var(--card-accent,var(--cyan));opacity:0.4}
+    .card-corner.br{bottom:0;right:0;border-bottom:2px solid var(--card-accent,var(--cyan));border-right:2px solid var(--card-accent,var(--cyan));opacity:0.4}
+    .course-card:hover .card-corner{opacity:1}
+
+    .card-head{padding:1.8rem 1.6rem 1rem;display:flex;align-items:flex-start;gap:1rem}
+    .card-icon-wrap{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.15);position:relative;overflow:hidden}
+    .card-icon-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,255,0.1),transparent);pointer-events:none}
+    .card-meta{flex:1}
+    .card-cat{font-family:var(--font-m);font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--card-accent,var(--cyan));margin-bottom:0.3rem}
+    .card-ttl{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--text);line-height:1.3}
+
+    /* Card preview */
+    .card-prev{margin:0 1.6rem 0.8rem;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);position:relative;min-height:55px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .card-prev img{width:100%;height:130px;object-fit:cover;display:block;transition:transform 0.4s ease}
+    .card-prev:hover img{transform:scale(1.04)}
+    .card-prev-empty{color:var(--muted);font-size:0.65rem;font-family:var(--font-m);letter-spacing:2px;padding:1rem;text-align:center}
+    .card-prev-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-family:var(--font-m);font-size:0.5rem;letter-spacing:3px;color:var(--cyan);padding:0.5rem;text-align:center;text-shadow:0 0 8px var(--cyan)}
+    .card-prev-zoom{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border:1px solid rgba(0,245,255,0.4);color:var(--cyan);font-size:1.2rem;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:var(--t);backdrop-filter:blur(4px)}
+    .card-prev:hover .card-prev-zoom{opacity:1}
+
+    .card-upload-btn{display:none;margin:0 1.6rem 0.7rem;background:rgba(0,245,255,0.05);border:1px dashed rgba(0,245,255,0.3);color:var(--cyan);font-size:0.65rem;font-family:var(--font-m);letter-spacing:1px;padding:0.5rem;border-radius:6px;width:calc(100% - 3.2rem);transition:var(--t);text-align:center}
+    .card-upload-btn:hover{background:rgba(0,245,255,0.1)}
+    body.owner-mode .card-upload-btn{display:block}
+
+    .card-body{padding:0 1.6rem 1.2rem;flex:1}
+    .card-desc{color:var(--muted);font-size:0.88rem;line-height:1.6;margin-bottom:0.8rem}
+    .card-tags{display:flex;flex-wrap:wrap;gap:0.35rem}
+    .tag{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:var(--muted);font-size:0.62rem;padding:0.18rem 0.55rem;border-radius:2px;font-family:var(--font-m)}
+
+    .card-foot{padding:1rem 1.6rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:0.7rem;background:rgba(0,0,0,0.2)}
+    .card-price{font-family:var(--font-d);font-size:1.2rem;font-weight:900;color:var(--card-accent,var(--cyan));text-shadow:0 0 10px rgba(0,245,255,0.3)}
+    .card-price span{font-size:0.65rem;font-weight:400;color:var(--muted);font-family:var(--font-b);display:block}
+    .card-acts{display:flex;gap:0.4rem}
+    .btn-detail{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:0.65rem;padding:0.45rem 0.85rem;border-radius:5px;font-family:var(--font-b);transition:var(--t);letter-spacing:1px}
+    .btn-detail:hover{border-color:rgba(0,245,255,0.3);color:var(--text);background:rgba(0,245,255,0.05)}
+    .btn-fb{background:linear-gradient(135deg,#1877f2,#0a5cc7);color:#fff;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;transition:var(--t);display:flex;align-items:center;gap:0.3rem}
+    .btn-fb:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(24,119,242,0.5)}
+    .btn-fb svg{width:13px;height:13px}
+    .btn-fb-dis{background:rgba(100,116,139,0.2);color:var(--muted);cursor:not-allowed;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:0.3rem}
+
+    /* Card skeleton loader */
+    .card-skeleton{background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(8,15,30,0.98));border:1px solid rgba(0,245,255,0.06);border-radius:var(--r);overflow:hidden;height:340px;position:relative}
+    .card-skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 30%,rgba(0,245,255,0.04) 50%,transparent 70%);animation:shimmer 1.6s infinite}
+    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+    /* LIGHTBOX */
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(10px)}
+    .lightbox.active{opacity:1;pointer-events:all}
+    .lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;border:1px solid rgba(0,245,255,0.2);box-shadow:0 0 60px rgba(0,245,255,0.2)}
+    .lightbox-close{position:absolute;top:1.5rem;right:1.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;width:40px;height:40px;border-radius:50%;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:var(--t)}
+    .lightbox-close:hover{background:rgba(255,45,120,0.3);border-color:var(--pink)}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity 0.3s ease}
+    .modal-overlay.active{opacity:1;pointer-events:all}
+    .modal{background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid rgba(0,245,255,0.2);border-radius:16px;max-width:620px;width:100%;position:relative;transform:scale(0.92) translateY(20px);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);max-height:92vh;overflow-y:auto}
+    .modal::-webkit-scrollbar{width:3px}
+    .modal::-webkit-scrollbar-track{background:transparent}
+    .modal::-webkit-scrollbar-thumb{background:rgba(0,245,255,0.25);border-radius:2px}
+    .modal-overlay.active .modal{transform:scale(1) translateY(0)}
+    .modal-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);box-shadow:0 0 20px rgba(0,245,255,0.5)}
+    .modal-corner{position:absolute;width:20px;height:20px}
+    .modal-corner.tl{top:0;left:0;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
+    .modal-corner.tr{top:0;right:0;border-top:2px solid var(--purple);border-right:2px solid var(--purple)}
+    .modal-head{padding:2rem 2rem 1rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+    .modal-icon{width:64px;height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.2);flex-shrink:0;box-shadow:0 0 20px rgba(0,245,255,0.1)}
+    .modal-title-block{flex:1}
+    .modal-cat{font-family:var(--font-m);font-size:0.6rem;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);margin-bottom:0.3rem}
+    .modal-ttl{font-family:var(--font-d);font-size:1.4rem;font-weight:900}
+    .modal-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--muted);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:var(--t);flex-shrink:0}
+    .modal-close:hover{background:rgba(255,45,120,0.2);border-color:var(--pink);color:var(--pink)}
+
+    /* Modal loading state */
+    .modal-loading{display:flex;align-items:center;justify-content:center;min-height:200px;font-family:var(--font-m);font-size:0.7rem;color:var(--cyan);letter-spacing:3px;flex-direction:column;gap:1rem}
+    .modal-spinner{width:32px;height:32px;border:2px solid rgba(0,245,255,0.15);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .modal-gallery{margin:0 2rem 1rem;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);position:relative;cursor:pointer}
+    .modal-gallery img{width:100%;max-height:240px;object-fit:cover;display:block;transition:transform 0.4s ease}
+    .modal-gallery:hover img{transform:scale(1.02)}
+    .modal-gallery-empty{background:rgba(255,255,255,0.02);padding:2.5rem;text-align:center;color:var(--muted);font-family:var(--font-m);font-size:0.65rem;letter-spacing:3px}
+    .modal-gallery-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-family:var(--font-m);font-size:0.55rem;letter-spacing:3px;color:var(--cyan);padding:0.8rem;text-align:center}
+    .modal-gallery-zoom{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.5);border:1px solid rgba(0,245,255,0.4);color:var(--cyan);font-size:1.5rem;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:var(--t)}
+    .modal-gallery:hover .modal-gallery-zoom{opacity:1}
+
+    /* Upload zona */
+    .modal-upload-wrap{display:none;margin:0 2rem 1rem}
+    body.owner-mode .modal-upload-wrap{display:block}
+    .upload-zone{border:2px dashed rgba(0,245,255,0.3);border-radius:10px;padding:1.2rem;text-align:center;cursor:pointer;transition:var(--t);background:rgba(0,245,255,0.02)}
+    .upload-zone:hover{border-color:rgba(0,245,255,0.6);background:rgba(0,245,255,0.05)}
+    .upload-zone-text{font-family:var(--font-m);font-size:0.65rem;color:var(--cyan);letter-spacing:2px}
+    .upload-zone-sub{font-size:0.6rem;color:var(--muted);margin-top:0.3rem;font-family:var(--font-m)}
+    .upload-progress{display:none;margin-top:0.7rem;background:rgba(0,0,0,0.3);border-radius:4px;height:4px;overflow:hidden}
+    .upload-progress-bar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));width:0%;transition:width 0.3s ease;border-radius:4px}
+    .upload-status{font-family:var(--font-m);font-size:0.6rem;text-align:center;margin-top:0.4rem;color:var(--muted)}
+
+    .modal-body{padding:0 2rem 1rem}
+    .modal-sec-title{font-family:var(--font-d);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin:1.5rem 0 0.7rem;display:flex;align-items:center;gap:0.5rem}
+    .modal-sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,245,255,0.3),transparent)}
+    .modal-desc{color:var(--muted);font-size:0.92rem;line-height:1.75}
+    .modal-topics{display:flex;flex-direction:column;gap:0.45rem}
+    .modal-topic{display:flex;align-items:flex-start;gap:0.7rem;font-size:0.88rem;color:var(--text)}
+    .modal-topic::before{content:'▶';color:var(--cyan);font-size:0.5rem;flex-shrink:0;margin-top:0.38rem;text-shadow:0 0 8px var(--cyan)}
+    .modal-includes{display:grid;grid-template-columns:1fr 1fr;gap:0.45rem}
+    .inc-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.65rem;font-size:0.78rem;display:flex;align-items:center;gap:0.5rem;transition:var(--t)}
+    .inc-item:hover{border-color:rgba(0,245,255,0.15);background:rgba(0,245,255,0.03)}
+    .inc-icon{font-size:0.95rem}
+
+    .modal-foot{padding:1.5rem 2rem 2rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:rgba(0,0,0,0.2)}
+    .modal-price{font-family:var(--font-d);font-size:1.8rem;font-weight:900;color:var(--cyan);text-shadow:0 0 20px rgba(0,245,255,0.4)}
+    .modal-price-note{font-size:0.72rem;color:var(--muted)}
+    .btn-cotizar-fb{background:linear-gradient(135deg,#1877f2,#0a5cc7);color:#fff;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;transition:var(--t);display:flex;align-items:center;gap:0.5rem;text-transform:uppercase;box-shadow:0 0 20px rgba(24,119,242,0.3)}
+    .btn-cotizar-fb:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(24,119,242,0.6)}
+    .btn-cotizar-fb svg{width:18px;height:18px}
+    .btn-cotizar-dis{background:rgba(100,116,139,0.2);color:var(--muted);cursor:not-allowed;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;display:flex;align-items:center;gap:0.5rem}
+    .no-stock-banner{background:rgba(255,45,120,0.07);border:1px solid rgba(255,45,120,0.3);color:var(--pink);font-family:var(--font-m);font-size:0.7rem;letter-spacing:2px;padding:0.7rem 1rem;border-radius:6px;text-align:center;width:100%}
+
+    /* REVIEWS */
+    .reviews-sec{margin:0 2rem 1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.05)}
+    .reviews-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .reviews-ttl{font-family:var(--font-d);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+    .reviews-cnt{font-family:var(--font-m);font-size:0.6rem;color:var(--muted)}
+    .reviews-list{display:flex;flex-direction:column;gap:0.7rem;max-height:260px;overflow-y:auto;padding-right:4px}
+    .reviews-list::-webkit-scrollbar{width:3px}
+    .reviews-list::-webkit-scrollbar-thumb{background:rgba(0,245,255,0.2);border-radius:2px}
+    .review-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:0.75rem;transition:var(--t)}
+    .review-item:hover{border-color:rgba(0,245,255,0.1)}
+    .review-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem}
+    .review-alias{font-family:var(--font-d);font-size:0.65rem;font-weight:700;color:var(--cyan);letter-spacing:1px;text-shadow:0 0 8px rgba(0,245,255,0.3)}
+    .review-date{font-family:var(--font-m);font-size:0.55rem;color:var(--muted)}
+    .review-desc{font-size:0.82rem;color:var(--muted);line-height:1.5;margin-bottom:0.55rem}
+    .review-img{width:100%;max-height:110px;object-fit:cover;border-radius:5px;margin-bottom:0.55rem;border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:opacity 0.2s}
+    .review-img:hover{opacity:0.85}
+    .review-acts{display:flex;align-items:center;gap:0.5rem}
+    .rv-vote{display:flex;align-items:center;gap:0.25rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:var(--muted);font-size:0.65rem;padding:0.2rem 0.55rem;border-radius:4px;transition:var(--t);font-family:var(--font-m)}
+    .rv-vote:hover{border-color:rgba(255,255,255,0.2);color:var(--text)}
+    .rv-vote.vl{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.06)}
+    .rv-vote.vd{border-color:var(--pink);color:var(--pink);background:rgba(255,45,120,0.06)}
+    .rv-del{margin-left:auto;background:transparent;border:1px solid rgba(255,45,120,0.18);color:rgba(255,45,120,0.45);font-size:0.55rem;padding:0.18rem 0.45rem;border-radius:3px;display:none;transition:var(--t)}
+    .rv-del:hover{border-color:var(--pink);color:var(--pink)}
+    body.owner-mode .rv-del{display:block}
+    .rv-loading{text-align:center;color:var(--muted);font-family:var(--font-m);font-size:0.65rem;padding:1rem;letter-spacing:2px}
+
+    /* REVIEW FORM */
+    .rv-form{background:rgba(0,245,255,0.02);border:1px solid rgba(0,245,255,0.1);border-radius:10px;padding:1rem;margin-top:1rem}
+    .rv-form-title{font-family:var(--font-d);font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:0.7rem}
+    .f-inp{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);color:var(--text);font-family:var(--font-b);font-size:0.88rem;padding:0.5rem 0.75rem;border-radius:6px;outline:none;transition:var(--t);width:100%;margin-bottom:0.4rem}
+    .f-inp:focus{border-color:rgba(0,245,255,0.4);box-shadow:0 0 0 2px rgba(0,245,255,0.07)}
+    .f-inp::placeholder{color:var(--muted);font-size:0.82rem}
+    .f-ta{resize:vertical;min-height:65px;max-height:110px}
+    .char-c{font-family:var(--font-m);font-size:0.55rem;color:var(--muted);text-align:right;margin-top:-0.25rem;margin-bottom:0.4rem}
+    .char-c.warn{color:var(--orange)}
+    .f-upload{border:1px dashed rgba(255,255,255,0.1);border-radius:6px;padding:0.65rem;text-align:center;cursor:pointer;color:var(--muted);font-size:0.7rem;font-family:var(--font-m);transition:var(--t);margin-bottom:0.4rem}
+    .f-upload:hover{border-color:rgba(0,245,255,0.3);color:var(--cyan)}
+    .f-prev-img{width:100%;max-height:75px;object-fit:cover;border-radius:4px;margin-bottom:0.4rem;display:none}
+    .btn-sub-rv{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-family:var(--font-d);font-size:0.6rem;font-weight:700;letter-spacing:2px;padding:0.6rem 1.5rem;border-radius:5px;transition:var(--t);text-transform:uppercase;width:100%}
+    .btn-sub-rv:hover{transform:translateY(-1px);box-shadow:var(--glow-c)}
+    .btn-sub-rv:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+    /* FEATURES */
+    .feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin-top:2rem}
+    .feat-item{background:linear-gradient(135deg,rgba(10,22,40,0.9),rgba(8,15,30,0.95));border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:1.4rem;transition:var(--t);position:relative;overflow:hidden}
+    .feat-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.3),transparent);transform:scaleX(0);transition:var(--t)}
+    .feat-item:hover{border-color:rgba(0,245,255,0.2);transform:translateY(-5px) scale(1.01);box-shadow:0 15px 40px rgba(0,0,0,0.4),0 0 20px rgba(0,245,255,0.08)}
+    .feat-item:hover::before{transform:scaleX(1)}
+    .feat-icon{font-size:1.7rem;margin-bottom:0.7rem;filter:drop-shadow(0 0 8px rgba(0,245,255,0.3))}
+    .feat-title{font-family:var(--font-d);font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:0.35rem;letter-spacing:1px}
+    .feat-desc{font-size:0.8rem;color:var(--muted)}
+
+    /* CTA */
+    .cta-sec{background:linear-gradient(135deg,rgba(10,22,40,0.9),rgba(8,15,30,0.95));border:1px solid rgba(0,245,255,0.15);border-radius:20px;padding:3rem 2rem;text-align:center;position:relative;overflow:hidden}
+    .cta-sec::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(0,245,255,0.05) 0%,transparent 70%);pointer-events:none}
+
+    /* FOOTER */
+    .foot-wrap{border-top:1px solid rgba(255,255,255,0.05);padding:3rem 1.5rem 2rem;max-width:1200px;margin:0 auto;text-align:center}
+    .foot-logo{font-family:var(--font-d);font-size:1rem;font-weight:900;color:var(--cyan);letter-spacing:3px;margin-bottom:0.5rem;text-shadow:0 0 20px rgba(0,245,255,0.4)}
+    .foot-logo span{color:var(--purple)}
+    .foot-links{display:flex;gap:2rem;justify-content:center;margin:1rem 0;flex-wrap:wrap}
+    .foot-link{font-size:0.75rem;color:var(--muted);transition:var(--t);font-family:var(--font-m);letter-spacing:2px}
+    .foot-link:hover{color:var(--cyan)}
+    .foot-note{font-size:0.7rem;color:var(--muted);margin-top:0.5rem}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);border:1px solid rgba(0,245,255,0.25);color:var(--text);font-family:var(--font-m);font-size:0.7rem;letter-spacing:1px;padding:0.7rem 1.5rem;border-radius:8px;z-index:9999;opacity:0;transition:all 0.3s ease;pointer-events:none;white-space:nowrap;box-shadow:0 0 20px rgba(0,245,255,0.15)}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.ok{border-color:rgba(0,255,136,0.4);color:var(--green)}
+    .toast.err{border-color:rgba(255,45,120,0.4);color:var(--pink)}
+
+    /* OWNER PANEL */
+    .owner-panel{display:none;position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg2);border:1px solid rgba(0,255,136,0.35);border-radius:10px;padding:1rem;z-index:300;min-width:200px;box-shadow:0 8px 30px rgba(0,0,0,0.6),0 0 20px rgba(0,255,136,0.1)}
+    .owner-panel.vis{display:block}
+    .op-title{font-family:var(--font-d);font-size:0.55rem;letter-spacing:3px;color:var(--green);margin-bottom:0.5rem;text-transform:uppercase}
+    .op-desc{font-size:0.72rem;color:var(--muted);margin-bottom:0.8rem;line-height:1.4}
+    .btn-logout{background:rgba(255,45,120,0.1);border:1px solid rgba(255,45,120,0.3);color:var(--pink);font-size:0.65rem;padding:0.4rem 0.8rem;border-radius:4px;width:100%;font-family:var(--font-m);transition:var(--t)}
+    .btn-logout:hover{background:rgba(255,45,120,0.2)}
+
+    /* PWD MODAL */
+    .pwd-modal{position:fixed;inset:0;background:rgba(0,0,0,0.94);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+    .pwd-modal.active{opacity:1;pointer-events:all}
+    .pwd-box{background:var(--bg2);border:1px solid rgba(124,58,237,0.4);border-radius:16px;padding:2rem;max-width:340px;width:100%;text-align:center;box-shadow:0 0 40px rgba(124,58,237,0.2)}
+    .pwd-box h3{font-family:var(--font-d);font-size:0.9rem;color:var(--purple);letter-spacing:2px;margin-bottom:0.5rem;text-shadow:0 0 15px rgba(124,58,237,0.5)}
+    .pwd-box p{font-size:0.82rem;color:var(--muted);margin-bottom:1.2rem}
+    .pwd-inp{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--text);font-family:var(--font-m);font-size:1rem;padding:0.7rem 1rem;border-radius:8px;outline:none;width:100%;text-align:center;letter-spacing:4px;margin-bottom:0.8rem;transition:var(--t)}
+    .pwd-inp:focus{border-color:rgba(124,58,237,0.5);box-shadow:0 0 0 2px rgba(124,58,237,0.1)}
+    .pwd-sub{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#000;font-family:var(--font-d);font-size:0.65rem;font-weight:700;letter-spacing:2px;padding:0.7rem 2rem;border-radius:6px;width:100%;transition:var(--t)}
+    .pwd-sub:hover{transform:translateY(-2px);box-shadow:var(--glow-p)}
+    .pwd-err{color:var(--pink);font-size:0.7rem;margin-top:0.5rem;display:none}
+    .pwd-cancel{margin-top:0.8rem;background:transparent;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity 0.7s ease,transform 0.7s ease}
+    .reveal.vis{opacity:1;transform:translateY(0)}
+
+    @media(max-width:768px){
+      .navbar{padding:0.75rem 1rem}
+      .hero{padding:5rem 1rem 3rem}
+      .hero-stats{gap:1.5rem}
+      .courses-grid{grid-template-columns:1fr}
+      .modal-includes{grid-template-columns:1fr}
+      .modal-foot{flex-direction:column;align-items:stretch;text-align:center}
+      section{padding:3rem 1rem}
+      .cta-sec{padding:2rem 1rem}
+      .owner-panel{bottom:1rem;right:1rem;left:1rem;min-width:unset}
+    }
+    @media(max-width:480px){
+      .hero-title{font-size:2.1rem}
+      .hero-actions{flex-direction:column;width:100%}
+      .btn-prim,.btn-out{width:100%;justify-content:center;display:flex}
+    }
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="grid-overlay"></div>
+<div class="scanline"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="page-wrapper">
+  <nav class="navbar">
+    <div class="navbar-logo">NOVA<span>TECH</span>EDU</div>
+    <div class="navbar-right">
+      <button class="owner-btn" id="ownerBtn" onclick="openPwd()">⚙ ADMIN</button>
+      <a href="#cursos" class="navbar-cta">Ver Cursos</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="inicio">
+    <div class="hero-badge">Sistema Educativo Digital</div>
+    <h1 class="hero-title">
+      <span class="l1">APRENDE. CRECE.</span>
+      <span class="l2">DOMINA.</span>
+    </h1>
+    <p class="hero-sub">Cursos digitales de alta calidad en <strong>tecnología, idiomas, ofimática y más</strong>. Aprende a tu ritmo con materiales exclusivos.</p>
+    <div class="hero-actions">
+      <a href="#cursos" class="btn-prim">Explorar Cursos</a>
+      <a href="#nosotros" class="btn-out">¿Por qué nosotros?</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-num" data-target="11">0</div><div class="stat-lbl">Cursos</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="200">0</div><div class="stat-lbl">Estudiantes</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="24">0</div><div class="stat-lbl">Soporte hrs</div></div>
+    </div>
+  </section>
+
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <div class="ticker-item">⚡ <span>ACCESO INMEDIATO</span> VÍA FACEBOOK</div>
+      <div class="ticker-item">🔐 <span>CONTENIDO PRIVADO</span> SOLO TRAS EL PAGO</div>
+      <div class="ticker-item">📱 <span>APRENDE DESDE TU CELULAR</span> O PC</div>
+      <div class="ticker-item">🛠 <span>SOPORTE DIRECTO</span> SIN BOTS</div>
+      <div class="ticker-item">🚀 <span>CONTENIDO ACTUALIZADO</span> REGULARMENTE</div>
+      <div class="ticker-item">⭐ <span>RESEÑAS REALES</span> GUARDADAS EN LA NUBE</div>
+      <div class="ticker-item">⚡ <span>ACCESO INMEDIATO</span> VÍA FACEBOOK</div>
+      <div class="ticker-item">🔐 <span>CONTENIDO PRIVADO</span> SOLO TRAS EL PAGO</div>
+      <div class="ticker-item">📱 <span>APRENDE DESDE TU CELULAR</span> O PC</div>
+      <div class="ticker-item">🛠 <span>SOPORTE DIRECTO</span> SIN BOTS</div>
+      <div class="ticker-item">🚀 <span>CONTENIDO ACTUALIZADO</span> REGULARMENTE</div>
+      <div class="ticker-item">⭐ <span>RESEÑAS REALES</span> GUARDADAS EN LA NUBE</div>
+    </div>
+  </div>
+
+  <section id="cursos" style="padding-top:5rem">
+    <div class="sec-lbl reveal"># Catálogo</div>
+    <h2 class="sec-title reveal">Nuestros Cursos</h2>
+    <p class="sec-desc reveal">Haz clic en <em>Detalle</em> para ver contenido, capturas ampliables y reseñas reales. Todo guardado en la nube.</p>
+    <div class="courses-grid" id="coursesGrid"></div>
+  </section>
+
+  <div class="div-line" style="margin:0 1.5rem"></div>
+
+  <section id="nosotros">
+    <div class="sec-lbl reveal"># Ventajas</div>
+    <h2 class="sec-title reveal">¿Por qué elegirnos?</h2>
+    <div class="feat-grid">
+      <div class="feat-item reveal"><div class="feat-icon">⚡</div><div class="feat-title">ACCESO INMEDIATO</div><p class="feat-desc">Confirma tu pago y recibe acceso al instante.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">📱</div><div class="feat-title">APRENDE DONDE SEA</div><p class="feat-desc">100% digital. Celular, tablet o computadora.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">🔄</div><div class="feat-title">ACTUALIZACIONES</div><p class="feat-desc">Contenido renovado regularmente.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">💬</div><div class="feat-title">SOPORTE DIRECTO</div><p class="feat-desc">Dudas resueltas por Facebook. Sin bots.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">🔒</div><div class="feat-title">CONTENIDO PRIVADO</div><p class="feat-desc">Materiales entregados solo tras el pago.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">🎯</div><div class="feat-title">RESULTADOS REALES</div><p class="feat-desc">Cientos de estudiantes ya aplicando lo aprendido.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">📦</div><div class="feat-title">PAQUETES A MEDIDA</div><p class="feat-desc">Arma tu paquete personalizado a mejor precio.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">☁️</div><div class="feat-title">RESEÑAS EN LA NUBE</div><p class="feat-desc">Opiniones reales guardadas permanentemente.</p></div>
+    </div>
+  </section>
+
+  <div class="div-line" style="margin:0 1.5rem"></div>
+
+  <section style="padding:3rem 1.5rem 5rem">
+    <div class="cta-sec reveal">
+      <div class="sec-lbl">¿Listo para empezar?</div>
+      <h2 class="sec-title">Invierte en tu futuro hoy</h2>
+      <p class="sec-desc" style="margin:0 auto 2rem">Elige el curso que necesitas y contáctanos por Facebook para recibir toda la información.</p>
+      <button class="btn-cotizar-fb" style="margin:0 auto" onclick="contactFB('un curso')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Escribir por Facebook
+      </button>
+    </div>
+  </section>
+
+  <div class="foot-wrap">
+    <div class="foot-logo">NOVA<span>TECH</span>EDU</div>
+    <div class="foot-links">
+      <a href="#inicio" class="foot-link">INICIO</a>
+      <a href="#cursos" class="foot-link">CURSOS</a>
+      <a href="#nosotros" class="foot-link">NOSOTROS</a>
+    </div>
+    <p class="foot-note">© 2025 NovaTech Edu · Todos los derechos reservados · Cursos Digitales</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOut(event)">
+  <div class="modal" id="modal">
+    <div class="modal-glow"></div>
+    <div class="modal-corner tl"></div>
+    <div class="modal-corner tr"></div>
+    <!-- Loading state -->
+    <div id="modalLoading" class="modal-loading" style="display:none">
+      <div class="modal-spinner"></div>
+      <span>CARGANDO...</span>
+    </div>
+    <!-- Content -->
+    <div id="modalContent">
+      <div class="modal-head">
+        <div class="modal-icon" id="mIcon">📚</div>
+        <div class="modal-title-block">
+          <div class="modal-cat" id="mCat"></div>
+          <div class="modal-ttl" id="mTtl"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-gallery" id="mGallery">
+        <div class="modal-gallery-zoom">🔍</div>
+      </div>
+      <!-- Admin upload zone -->
+      <div class="modal-upload-wrap">
+        <div class="upload-zone" onclick="document.getElementById('modalImgIn').click()">
+          <div class="upload-zone-text">📷 Subir / Cambiar captura del curso</div>
+          <div class="upload-zone-sub">JPG, PNG, WEBP · Máx 5MB · Solo administrador</div>
+        </div>
+        <div class="upload-progress" id="uploadProgress">
+          <div class="upload-progress-bar" id="uploadProgressBar"></div>
+        </div>
+        <div class="upload-status" id="uploadStatus"></div>
+        <input type="file" accept="image/*" id="modalImgIn" style="display:none" onchange="uploadCourseImg(event)">
+      </div>
+      <div class="modal-body">
+        <div class="modal-sec-title">¿De qué trata?</div>
+        <p class="modal-desc" id="mDesc"></p>
+        <div class="modal-sec-title">Contenido del curso</div>
+        <div class="modal-topics" id="mTopics"></div>
+        <div class="modal-sec-title">¿Qué incluye?</div>
+        <div class="modal-includes" id="mIncludes"></div>
+      </div>
+      <div class="reviews-sec">
+        <div class="reviews-hdr">
+          <div class="reviews-ttl">⭐ Reseñas</div>
+          <div class="reviews-cnt" id="rvCount">Cargando...</div>
+        </div>
+        <div class="reviews-list" id="rvList"></div>
+        <div class="rv-form">
+          <div class="rv-form-title">💬 Deja tu reseña</div>
+          <input type="text" class="f-inp" id="rvAlias" placeholder="Tu alias (máx 17 caracteres)" maxlength="17" oninput="cntA()">
+          <div class="char-c" id="cntAlias">0/17</div>
+          <textarea class="f-inp f-ta" id="rvDescIn" placeholder="Tu opinión (máx 180 caracteres)" maxlength="180" oninput="cntD()"></textarea>
+          <div class="char-c" id="cntDesc">0/180</div>
+          <div class="f-upload" id="rvUpLbl" onclick="document.getElementById('rvImgIn').click()">📷 Adjuntar captura (opcional)</div>
+          <input type="file" accept="image/*" id="rvImgIn" style="display:none" onchange="previewRvImg(event)">
+          <img id="rvPrevImg" class="f-prev-img" src="" alt="">
+          <button class="btn-sub-rv" id="rvSubmitBtn" onclick="submitReview()">Publicar Reseña</button>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div>
+          <div class="modal-price" id="mPrice"></div>
+          <div class="modal-price-note">Contáctanos para conocer precio y métodos de pago</div>
+          <div id="mNoStock" style="display:none" class="no-stock-banner">⛔ SIN STOCK — Escríbenos para avisarte cuando esté disponible</div>
+        </div>
+        <div id="mFbWrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- OWNER PANEL -->
+<div class="owner-panel" id="ownerPanel">
+  <div class="op-title">⚙ MODO ADMIN ACTIVO</div>
+  <p class="op-desc">Puedes borrar reseñas y subir capturas. Todo se guarda en la nube.</p>
+  <button class="btn-logout" onclick="logout()">CERRAR SESIÓN</button>
+</div>
+
+<!-- PWD MODAL -->
+<div class="pwd-modal" id="pwdModal">
+  <div class="pwd-box">
+    <h3>🔐 ACCESO ADMIN</h3>
+    <p>Introduce la contraseña de administrador</p>
+    <input type="password" class="pwd-inp" id="pwdIn" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button class="pwd-sub" onclick="checkPwd()">INGRESAR</button>
+    <p class="pwd-err" id="pwdErr">❌ Contraseña incorrecta</p>
+    <button class="pwd-cancel" onclick="closePwd()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Card image upload input (hidden) -->
+<input type="file" accept="image/*" id="cardImgIn" style="display:none" onchange="saveCardImg(event)">
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   SUPABASE CONFIG
+============================================================ */
+const { createClient } = supabase;
+const sb = createClient(
+  'https://rttdgoysimrzxmoatfgh.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dGRnb3lzaW1yenhtb2F0ZmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MzI3NDQsImV4cCI6MjA5MTAwODc0NH0.mysmpB4poO_6zf8UXHZh3CD4Y0CgB4sXPhbHzhOgsQI'
+);
+
+/* ============================================================
+   CONFIG
+============================================================ */
+const CONFIG = {
+  facebook: "https://www.facebook.com/tupagina",
+  ownerPassword: "admin2008"
+};
+
+const FB_SVG    = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
+const FB_SVG_SM = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
+
+/* ============================================================
+   CURSOS
+============================================================ */
+const coursesData = [
+  {id:"idiomas",icon:"🌍",category:"Idiomas",title:"Curso de Idiomas",cardDesc:"Domina nuevas lenguas con métodos modernos. Inglés, francés, japonés y más.",tags:["Inglés","Conversación","Principiante a Avanzado"],accentColor:"#00f5ff",stock:true,desc:"Aprende a comunicarte en otros idiomas con materiales completos y estructurados. Desde pronunciación básica hasta conversación fluida, este curso cubre todo lo que necesitas para dominar un nuevo idioma a tu propio ritmo.",topics:["Pronunciación y fonética básica","Vocabulario esencial y frases cotidianas","Gramática paso a paso con ejercicios","Conversación y expresión oral","Comprensión auditiva y lectora","Inglés, Francés, Japonés y más disponibles"],includes:[{icon:"📁",text:"Material descargable"},{icon:"🎧",text:"Audio y ejercicios"},{icon:"📋",text:"Guías de estudio"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"ingles",icon:"🇺🇸",category:"Idiomas",title:"Inglés sin Barreras",cardDesc:"Habla inglés con confianza desde el primer día. Método conversacional sin memorización.",tags:["Conversacional","Desde cero","Sin memorizar"],accentColor:"#3b82f6",stock:true,desc:"Un enfoque revolucionario para aprender inglés: nada de gramática aburrida. Aprenderás a través de contexto, situaciones reales y repetición espaciada.",topics:["Método natural de adquisición del idioma","Pronunciación americana y británica","Frases para situaciones reales","Conversaciones guiadas paso a paso","Escucha activa y comprensión auditiva","Niveles A1 hasta B2"],includes:[{icon:"🎧",text:"Audios con nativos"},{icon:"📖",text:"Guías de conversación"},{icon:"🎬",text:"Videos situacionales"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"hacking",icon:"🔐",category:"Ciberseguridad",title:"Hacking Ético",cardDesc:"Pentesting, vulnerabilidades y seguridad ofensiva-defensiva desde cero.",tags:["Pentesting","Kali Linux","Redes"],accentColor:"#ff6b35",stock:true,desc:"Aprende ciberseguridad ofensiva y defensiva de forma ética. Este curso te enseña las técnicas que usan los hackers para proteger sistemas, redes y aplicaciones.",topics:["Fundamentos de redes y protocolos","Reconocimiento y escaneo de objetivos","Explotación de vulnerabilidades con Metasploit","Análisis de tráfico con Wireshark","Hacking web: SQLi, XSS, CSRF","Post-explotación y reportes"],includes:[{icon:"🖥️",text:"Labs virtuales"},{icon:"🛠️",text:"Herramientas Kali Linux"},{icon:"📄",text:"Guías PDF"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"excel",icon:"📊",category:"Ofimática",title:"Curso de Excel",cardDesc:"Desde cero hasta fórmulas avanzadas, tablas dinámicas, macros y dashboards.",tags:["Fórmulas","Tablas Dinámicas","Macros"],accentColor:"#00ff88",stock:true,desc:"Conviértete en experto de Excel: desde operaciones básicas hasta análisis de datos avanzado, macros y dashboards profesionales.",topics:["Interfaz y fundamentos","Fórmulas esenciales (SUMA, BUSCARV, SI)","Tablas dinámicas y gráficas","Formato condicional","Macros y VBA básico","Dashboards ejecutivos"],includes:[{icon:"📂",text:"Archivos de práctica"},{icon:"🎬",text:"Ejercicios paso a paso"},{icon:"📊",text:"Plantillas incluidas"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"word",icon:"📝",category:"Ofimática",title:"Curso de Word",cardDesc:"Documentos profesionales con índices, plantillas y combinación de correspondencia.",tags:["Estilos","Plantillas","Correspondencia"],accentColor:"#7c3aed",stock:true,desc:"Aprende a crear documentos profesionales de alto impacto con índices automáticos, combinación de correspondencia y plantillas.",topics:["Formateo de texto y párrafos","Estilos y tabla de contenido automática","Imágenes, tablas y gráficos","Combinación de correspondencia","Plantillas profesionales","Control de cambios"],includes:[{icon:"📄",text:"Documentos de ejemplo"},{icon:"📋",text:"Plantillas listas"},{icon:"🎯",text:"Ejercicios prácticos"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"powerpoint",icon:"🎨",category:"Ofimática",title:"Curso de PowerPoint",cardDesc:"Presentaciones impactantes con animaciones y diseño visual profesional.",tags:["Animaciones","Diseño","Pro"],accentColor:"#f59e0b",stock:true,desc:"Diseña presentaciones que impresionan. Animaciones, transiciones y storytelling para comunicar tus ideas con poder.",topics:["Diseño de diapositivas","Tipografía y colores","Animaciones avanzadas","Multimedia (video, audio)","Infografías en PPT","Trucos de presentador"],includes:[{icon:"🖼️",text:"Plantillas diseñadas"},{icon:"✨",text:"Iconos y recursos"},{icon:"🎬",text:"Ejemplos animados"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"mecanica",icon:"🔧",category:"Automotriz",title:"Mecánica Automotriz",cardDesc:"Diagnóstico, mantenimiento preventivo, frenos y motor desde cero.",tags:["Motor","Frenos","OBD2"],accentColor:"#9ca3af",stock:true,desc:"¿Cansado de pagar caro en el taller? Aprende a diagnosticar y reparar tu vehículo: cambio de aceite hasta fallas complejas.",topics:["Herramientas de taller","Mantenimiento: aceite, filtros","Sistema de frenos","Motor: fallas y reparación básica","Suspensión y dirección","Diagnóstico OBD2","Transmisión","Cómo montar tu taller"],includes:[{icon:"🔧",text:"Manuales PDF"},{icon:"🎬",text:"Videos paso a paso"},{icon:"🚗",text:"Casos reales"},{icon:"🛠️",text:"Guías de herramientas"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"caligrafia",icon:"✍️",category:"Arte",title:"Caligrafía",cardDesc:"Lettering moderno, brush pen y caligrafía clásica desde cero.",tags:["Lettering","Brush pen","Arte"],accentColor:"#ec4899",stock:true,desc:"Transforma tu escritura en arte. Caligrafía clásica, lettering moderno y brush pen para decoración, invitaciones y marca personal.",topics:["Herramientas esenciales","Presión, ángulo y fluidez","Copperplate clásica","Hand lettering moderno","Brush pen","Proyectos finales"],includes:[{icon:"📓",text:"Hojas de práctica"},{icon:"🖊️",text:"Guías de trazos"},{icon:"🎨",text:"Proyectos creativos"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"trading",icon:"📈",category:"Finanzas",title:"Trading",cardDesc:"Análisis técnico, gestión de riesgo y estrategias reales en mercados financieros.",tags:["Forex","Cripto","Análisis técnico"],accentColor:"#10b981",stock:true,desc:"Aprende a leer el mercado, identificar oportunidades y gestionar el riesgo en forex, criptomonedas y acciones.",topics:["Mercado financiero","Velas japonesas","Soportes y resistencias","RSI, MACD, Medias","Gestión de riesgo","Estrategias para principiantes"],includes:[{icon:"📊",text:"Plantillas de análisis"},{icon:"📋",text:"Diario de trading"},{icon:"🎬",text:"Sesiones grabadas"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"capcut",icon:"🎬",category:"Edición",title:"CapCut & Canva",cardDesc:"Edita videos virales y diseña contenido pro para redes desde tu celular.",tags:["CapCut","Canva","Reels"],accentColor:"#a855f7",stock:true,desc:"Con CapCut edita videos para TikTok y Reels. Con Canva crea posts, stories y logos de nivel profesional sin ser diseñador.",topics:["Herramientas de CapCut","Transiciones y efectos virales","Texto animado y música","Canva: plantillas y marca","Posts, stories y thumbnails","Exportación optimizada"],includes:[{icon:"📱",text:"Desde celular o PC"},{icon:"🎞️",text:"Plantillas"},{icon:"✨",text:"Pack de recursos"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
+  {id:"paquete",icon:"📦",category:"Paquete Especial",title:"Paquete a tu Medida",cardDesc:"Elige los cursos que quieras y arma tu paquete con precio especial.",tags:["Personalizado","Ahorra más","Tú eliges"],accentColor:"#f97316",stock:true,desc:"Selecciona 2 o más cursos y obtén precio especial combinado. Escríbenos indicando qué cursos te interesan.",topics:["Elige cualquier combinación","Precio especial por paquete","Acceso inmediato","Sin límite de cursos","Ideal para emprendedores","Soporte dedicado"],includes:[{icon:"📦",text:"Todos los elegidos"},{icon:"💰",text:"Precio especial"},{icon:"⚡",text:"Acceso inmediato"},{icon:"💬",text:"Soporte por Facebook"}],price:"¡Precio especial!"}
+];
+
+/* ============================================================
+   ESTADO
+============================================================ */
+let ownerMode     = false;
+let curCourseId   = null;
+let rvImgFile     = null;  // FIX: guardamos el File, no base64
+let cardUploadId  = null;
+
+// Cache de imágenes de cursos — evita re-fetch al abrir modal
+const imgCache = {};
+
+/* ============================================================
+   DEVICE ID
+============================================================ */
+function getDeviceId(){
+  let d = localStorage.getItem('did');
+  if(!d){ d = 'd' + Date.now() + Math.random().toString(36).substr(2,8); localStorage.setItem('did',d); }
+  return d;
+}
+
+/* ============================================================
+   SUPABASE HELPERS
+============================================================ */
+async function fetchAllCourseImgs(){
+  try{
+    const { data, error } = await sb.from('course_images').select('course_id,image_url');
+    if(error) throw error;
+    (data||[]).forEach(row => { imgCache[row.course_id] = row.image_url; });
+  } catch(e){
+    console.warn('fetchAllCourseImgs error:', e.message);
+  }
+}
+
+async function upsertCourseImg(courseId, url){
+  const { error } = await sb.from('course_images')
+    .upsert({ course_id: courseId, image_url: url, updated_at: new Date().toISOString() },
+             { onConflict: 'course_id' });
+  if(error) throw error;
+}
+
+// FIX: upload mejorado con manejo correcto de errores y cache-busting
+async function uploadToStorage(bucket, path, file){
+  // Intentar subir con upsert
+  const { data, error } = await sb.storage.from(bucket).upload(path, file, {
+    upsert: true,
+    contentType: file.type,
+    cacheControl: '3600'
+  });
+  if(error){
+    // Si el error es de permisos, lanzar mensaje claro
+    if(error.message && error.message.includes('row-level security')){
+      throw new Error('Sin permiso para subir. Verifica las políticas del bucket en Supabase.');
+    }
+    throw error;
+  }
+  // Obtener URL pública
+  const { data: pub } = sb.storage.from(bucket).getPublicUrl(path);
+  if(!pub || !pub.publicUrl) throw new Error('No se pudo obtener la URL pública del archivo.');
+  // Añadir cache-buster para forzar recarga de imagen
+  return pub.publicUrl + '?t=' + Date.now();
+}
+
+async function fetchReviews(courseId){
+  const { data, error } = await sb.from('reviews').select('*').eq('course_id',courseId).order('created_at',{ascending:false});
+  if(error) throw error;
+  return data || [];
+}
+
+async function insertReview(rv){
+  const { error } = await sb.from('reviews').insert(rv);
+  if(error) throw error;
+}
+
+async function deleteReviewDb(id){
+  const { error } = await sb.from('reviews').delete().eq('id',id);
+  if(error) throw error;
+}
+
+async function fetchMyVotes(courseId, deviceId){
+  const { data } = await sb.from('votes').select('review_id,vote_type').eq('device_id',deviceId);
+  const map = {};
+  (data||[]).forEach(v => map[v.review_id] = v.vote_type);
+  return map;
+}
+
+async function upsertVote(reviewId, deviceId, type){
+  const { error } = await sb.from('votes').upsert(
+    { id: reviewId+'_'+deviceId, review_id: reviewId, device_id: deviceId, vote_type: type },
+    { onConflict: 'id' }
+  );
+  if(error) throw error;
+}
+
+async function deleteVote(reviewId, deviceId){
+  await sb.from('votes').delete().eq('id', reviewId+'_'+deviceId);
+}
+
+async function updateReviewVotes(id, likes, dislikes){
+  await sb.from('reviews').update({ likes, dislikes }).eq('id',id);
+}
+
+/* ============================================================
+   RENDER CARDS — FIX: sin fetch por card, usa caché global
+============================================================ */
+function renderCards(){
+  const grid = document.getElementById('coursesGrid');
+  grid.innerHTML = '';
+
+  coursesData.forEach(c => {
+    const imgUrl = imgCache[c.id] || null;
+    const oos    = !c.stock;
+
+    const el = document.createElement('div');
+    el.className = 'course-card reveal' + (oos?' oos':'');
+    el.style.setProperty('--card-accent', c.accentColor);
+
+    el.innerHTML = `
+      <span class="stock-badge ${oos?'out':'in'}">${oos?'SIN STOCK':'DISPONIBLE'}</span>
+      <div class="card-corner tl"></div><div class="card-corner tr"></div>
+      <div class="card-corner bl"></div><div class="card-corner br"></div>
+      <div class="card-head">
+        <div class="card-icon-wrap">${c.icon}</div>
+        <div class="card-meta">
+          <div class="card-cat">${c.category}</div>
+          <div class="card-ttl">${c.title}</div>
+        </div>
+      </div>
+      ${imgUrl
+        ? `<div class="card-prev" onclick="openLightboxUrl('${imgUrl}')">
+             <img src="${imgUrl}" alt="Vista previa" loading="lazy">
+             <div class="card-prev-zoom">🔍</div>
+             <div class="card-prev-lbl">▶ CLIC PARA AMPLIAR</div>
+           </div>`
+        : `<div class="card-prev"><div class="card-prev-empty">SIN CAPTURA AÚN</div></div>`}
+      <button class="card-upload-btn" onclick="trigCardUpload('${c.id}')">📷 Cambiar captura (admin)</button>
+      <div class="card-body">
+        <p class="card-desc">${c.cardDesc}</p>
+        <div class="card-tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="card-foot">
+        <div class="card-price">${oos?`<span style="color:var(--pink)">SIN STOCK</span>`:'Consultar'}<span>${oos?'Avísame cuando haya':'Precio a convenir'}</span></div>
+        <div class="card-acts">
+          <button class="btn-detail" onclick="openModal('${c.id}')">Detalle</button>
+          ${oos
+            ? `<span class="btn-fb-dis">⛔ No disp.</span>`
+            : `<button class="btn-fb" onclick="contactFB('${c.title}')">${FB_SVG_SM} Cotizar</button>`}
+        </div>
+      </div>`;
+
+    grid.appendChild(el);
+    revealObs.observe(el);
+  });
+}
+
+/* ============================================================
+   MODAL — FIX: muestra loading, luego contenido
+============================================================ */
+async function openModal(id){
+  const d = coursesData.find(c => c.id === id);
+  if(!d) return;
+
+  curCourseId = id;
+
+  // Mostrar overlay y loading inmediatamente
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modalLoading').style.display = 'flex';
+  document.getElementById('modalContent').style.display = 'none';
+
+  // Llenar datos estáticos (sin esperar Supabase)
+  document.getElementById('mIcon').textContent  = d.icon;
+  document.getElementById('mCat').textContent   = d.category;
+  document.getElementById('mTtl').textContent   = d.title;
+  document.getElementById('mDesc').textContent  = d.desc;
+  document.getElementById('mPrice').textContent = d.price;
+  document.getElementById('mTopics').innerHTML  = d.topics.map(t=>`<div class="modal-topic">${t}</div>`).join('');
+  document.getElementById('mIncludes').innerHTML = d.includes.map(i=>`<div class="inc-item"><span class="inc-icon">${i.icon}</span>${i.text}</div>`).join('');
+
+  // Stock
+  const noStock = !d.stock;
+  document.getElementById('mNoStock').style.display = noStock ? 'block' : 'none';
+  document.getElementById('mFbWrap').innerHTML = noStock
+    ? `<span class="btn-cotizar-dis">⛔ SIN STOCK</span>`
+    : `<button class="btn-cotizar-fb" onclick="contactFB('${d.title}')">${FB_SVG} Contactar por Facebook</button>`;
+
+  resetRvForm();
+
+  // Cargar datos async en paralelo
+  try {
+    const [imgUrl, reviews] = await Promise.all([
+      // Usa caché si existe
+      imgCache[id] !== undefined ? Promise.resolve(imgCache[id]) : fetchSingleImg(id),
+      fetchReviews(id)
+    ]);
+
+    // Galería
+    const gal = document.getElementById('mGallery');
+    if(imgUrl){
+      gal.innerHTML = `<img src="${imgUrl}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
+      gal.onclick = () => openLightboxUrl(imgUrl);
+    } else {
+      gal.innerHTML = `<div class="modal-gallery-empty">📷 Sin captura — el admin puede agregar una vista previa</div>`;
+      gal.onclick = null;
+    }
+
+    // Reseñas
+    const myVotes = await fetchMyVotes(id, getDeviceId());
+    renderReviews(reviews, myVotes, id);
+
+  } catch(e){
+    console.error('Modal load error:', e);
+    document.getElementById('rvList').innerHTML = `<div class="rv-loading" style="color:var(--pink)">Error al cargar datos</div>`;
+  }
+
+  // Mostrar contenido, ocultar loading
+  document.getElementById('modalLoading').style.display = 'none';
+  document.getElementById('modalContent').style.display = 'block';
+  document.getElementById('modal').scrollTop = 0;
+}
+
+async function fetchSingleImg(courseId){
+  const { data } = await sb.from('course_images').select('image_url').eq('course_id',courseId).single();
+  const url = data?.image_url || null;
+  imgCache[courseId] = url;
+  return url;
+}
+
+function closeModalOut(e){
+  if(e.target === document.getElementById('modalOverlay')) closeModal();
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  curCourseId = null;
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ closeModal(); closeLightbox(); }
+});
+
+/* ============================================================
+   LIGHTBOX
+============================================================ */
+function openLightboxUrl(url){
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('active');
+}
+function openLightbox(el){
+  const img = el.querySelector('img');
+  if(img) openLightboxUrl(img.src);
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('active');
+}
+
+/* ============================================================
+   REVIEWS
+============================================================ */
+async function loadReviews(courseId){
+  document.getElementById('rvCount').textContent = 'Cargando...';
+  document.getElementById('rvList').innerHTML = '<div class="rv-loading">[ CARGANDO... ]</div>';
+  try{
+    const reviews  = await fetchReviews(courseId);
+    const myVotes  = await fetchMyVotes(courseId, getDeviceId());
+    renderReviews(reviews, myVotes, courseId);
+  } catch(e){
+    document.getElementById('rvList').innerHTML = '<div class="rv-loading" style="color:var(--pink)">Error cargando reseñas</div>';
+  }
+}
+
+function renderReviews(reviews, myVotes, courseId){
+  document.getElementById('rvCount').textContent = reviews.length + ' reseña' + (reviews.length!==1?'s':'');
+  const list = document.getElementById('rvList');
+  if(!reviews.length){ list.innerHTML = '<div class="rv-loading">Sé el primero en dejar una reseña ⭐</div>'; return; }
+  list.innerHTML = reviews.map(r => {
+    const mv = myVotes[r.id] || null;
+    const d  = new Date(r.created_at).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="review-item" id="ri_${r.id}">
+      <div class="review-hdr"><span class="review-alias">${esc(r.alias)}</span><span class="review-date">${d}</span></div>
+      <p class="review-desc">${esc(r.description)}</p>
+      ${r.image_url ? `<img src="${r.image_url}" class="review-img" onclick="openLightboxUrl('${r.image_url}')" alt="captura">` : ''}
+      <div class="review-acts">
+        <button class="rv-vote ${mv==='like'?'vl':''}" onclick="voteRv('${courseId}','${r.id}','like',${r.likes},${r.dislikes})">👍 ${r.likes}</button>
+        <button class="rv-vote ${mv==='dislike'?'vd':''}" onclick="voteRv('${courseId}','${r.id}','dislike',${r.likes},${r.dislikes})">👎 ${r.dislikes}</button>
+        <button class="rv-del" onclick="delReview('${courseId}','${r.id}')">🗑 Borrar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function submitReview(){
+  const alias = document.getElementById('rvAlias').value.trim();
+  const desc  = document.getElementById('rvDescIn').value.trim();
+  if(!alias){ showToast('Escribe un alias','err'); return; }
+  if(!desc){  showToast('Escribe tu opinión','err'); return; }
+  if(!curCourseId) return;
+
+  const btn = document.getElementById('rvSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Publicando...';
+
+  try{
+    let imgUrl = null;
+    if(rvImgFile){
+      // FIX: subir archivo directamente, no base64
+      const ext  = rvImgFile.name.split('.').pop() || 'jpg';
+      const path = 'reviews/' + Date.now() + '_' + Math.random().toString(36).substr(2,6) + '.' + ext;
+      imgUrl = await uploadToStorage('review-images', path, rvImgFile);
+    }
+    const rv = {
+      id:          'r' + Date.now() + Math.random().toString(36).substr(2,5),
+      course_id:   curCourseId,
+      alias:       alias.substring(0,17),
+      description: desc.substring(0,180),
+      image_url:   imgUrl,
+      likes:       0,
+      dislikes:    0
+    };
+    await insertReview(rv);
+    showToast('¡Reseña publicada! ⭐','ok');
+    resetRvForm();
+    await loadReviews(curCourseId);
+  } catch(e){
+    console.error('submitReview error:', e);
+    showToast('Error: ' + (e.message||'inténtalo de nuevo'),'err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Publicar Reseña';
+}
+
+async function voteRv(courseId, reviewId, type, curLikes, curDislikes){
+  const dev     = getDeviceId();
+  const myVotes = await fetchMyVotes(courseId, dev);
+  const prev    = myVotes[reviewId] || null;
+  let likes = curLikes, dislikes = curDislikes;
+
+  try{
+    if(prev === type){
+      if(type==='like') likes = Math.max(0,likes-1); else dislikes = Math.max(0,dislikes-1);
+      await deleteVote(reviewId, dev);
+    } else {
+      if(prev){ if(prev==='like') likes=Math.max(0,likes-1); else dislikes=Math.max(0,dislikes-1); }
+      if(type==='like') likes++; else dislikes++;
+      await upsertVote(reviewId, dev, type);
+    }
+    await updateReviewVotes(reviewId, likes, dislikes);
+    await loadReviews(courseId);
+  } catch(e){
+    showToast('Error al votar','err');
+  }
+}
+
+async function delReview(courseId, reviewId){
+  if(!ownerMode) return;
+  try{
+    await deleteReviewDb(reviewId);
+    showToast('Reseña eliminada','ok');
+    await loadReviews(courseId);
+  } catch(e){
+    showToast('Error al borrar: ' + e.message,'err');
+  }
+}
+
+function previewRvImg(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  if(f.size > 3 * 1024 * 1024){ showToast('Imagen muy grande (máx 3MB)','err'); return; }
+  rvImgFile = f;  // FIX: guardamos el File directamente
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const p = document.getElementById('rvPrevImg');
+    p.src = ev.target.result;
+    p.style.display = 'block';
+    document.getElementById('rvUpLbl').textContent = '✅ Imagen lista — ' + f.name;
+  };
+  reader.readAsDataURL(f);
+}
+
+function resetRvForm(){
+  document.getElementById('rvAlias').value  = '';
+  document.getElementById('rvDescIn').value = '';
+  document.getElementById('cntAlias').textContent = '0/17';
+  document.getElementById('cntDesc').textContent  = '0/180';
+  document.getElementById('rvPrevImg').style.display = 'none';
+  document.getElementById('rvImgIn').value = '';
+  document.getElementById('rvUpLbl').textContent = '📷 Adjuntar captura (opcional)';
+  rvImgFile = null;
+}
+
+function cntA(){ const v=document.getElementById('rvAlias').value.length; const el=document.getElementById('cntAlias'); el.textContent=v+'/17'; el.className='char-c'+(v>14?' warn':''); }
+function cntD(){ const v=document.getElementById('rvDescIn').value.length; const el=document.getElementById('cntDesc'); el.textContent=v+'/180'; el.className='char-c'+(v>155?' warn':''); }
+
+/* ============================================================
+   IMÁGENES DE CURSOS — FIX: manejo completo con progreso
+============================================================ */
+function trigCardUpload(id){
+  if(!ownerMode) return;
+  cardUploadId = id;
+  document.getElementById('cardImgIn').click();
+}
+
+async function saveCardImg(e){
+  const f = e.target.files[0];
+  if(!f || !cardUploadId) return;
+  if(f.size > 5 * 1024 * 1024){ showToast('Imagen muy grande (máx 5MB)','err'); e.target.value=''; return; }
+
+  showToast('⬆ Subiendo imagen...','');
+  try{
+    const ext  = f.name.split('.').pop() || 'jpg';
+    const path = 'courses/' + cardUploadId + '_' + Date.now() + '.' + ext;
+    const url  = await uploadToStorage('course-images', path, f);
+
+    await upsertCourseImg(cardUploadId, url);
+
+    // Actualizar caché
+    imgCache[cardUploadId] = url;
+
+    showToast('✅ Captura guardada en la nube','ok');
+
+    // Si el modal está abierto con este curso, actualizar galería
+    if(curCourseId === cardUploadId){
+      const gal = document.getElementById('mGallery');
+      gal.innerHTML = `<img src="${url}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
+      gal.onclick = () => openLightboxUrl(url);
+    }
+
+    // Re-renderizar cards con imagen actualizada
+    renderCards();
+    reobserveReveal();
+
+  } catch(err){
+    console.error('saveCardImg error:', err);
+    showToast('Error al subir: ' + (err.message||'intenta de nuevo'),'err');
+  }
+
+  cardUploadId = null;
+  e.target.value = '';
+}
+
+// FIX: Upload desde modal (conecta al mismo flujo que saveCardImg)
+async function uploadCourseImg(e){
+  if(!curCourseId){ showToast('No hay curso seleccionado','err'); return; }
+  const f = e.target.files[0];
+  if(!f) return;
+  if(f.size > 5 * 1024 * 1024){ showToast('Imagen muy grande (máx 5MB)','err'); e.target.value=''; return; }
+
+  const progress    = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('uploadProgressBar');
+  const status      = document.getElementById('uploadStatus');
+
+  progress.style.display = 'block';
+  status.textContent = 'Subiendo...';
+  progressBar.style.width = '30%';
+
+  try{
+    const ext  = f.name.split('.').pop() || 'jpg';
+    const path = 'courses/' + curCourseId + '_' + Date.now() + '.' + ext;
+
+    progressBar.style.width = '60%';
+    const url = await uploadToStorage('course-images', path, f);
+    progressBar.style.width = '85%';
+
+    await upsertCourseImg(curCourseId, url);
+    progressBar.style.width = '100%';
+    status.textContent = '✅ Imagen guardada';
+
+    // Actualizar caché y galería del modal
+    imgCache[curCourseId] = url;
+    const gal = document.getElementById('mGallery');
+    gal.innerHTML = `<img src="${url}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
+    gal.onclick = () => openLightboxUrl(url);
+
+    showToast('✅ Captura actualizada','ok');
+    renderCards();
+    reobserveReveal();
+
+    setTimeout(() => {
+      progress.style.display = 'none';
+      progressBar.style.width = '0%';
+      status.textContent = '';
+    }, 2000);
+
+  } catch(err){
+    console.error('uploadCourseImg error:', err);
+    progressBar.style.width = '0%';
+    status.textContent = '❌ ' + (err.message||'Error al subir');
+    showToast('Error: ' + (err.message||'intenta de nuevo'),'err');
+  }
+
+  e.target.value = '';
+}
+
+/* ============================================================
+   OWNER
+============================================================ */
+function openPwd(){
+  if(ownerMode){ logout(); return; }
+  document.getElementById('pwdModal').classList.add('active');
+  document.getElementById('pwdIn').value = '';
+  document.getElementById('pwdErr').style.display = 'none';
+  setTimeout(() => document.getElementById('pwdIn').focus(), 200);
+}
+function closePwd(){ document.getElementById('pwdModal').classList.remove('active'); }
+function checkPwd(){
+  if(document.getElementById('pwdIn').value === CONFIG.ownerPassword){
+    ownerMode = true;
+    document.body.classList.add('owner-mode');
+    document.getElementById('ownerBtn').classList.add('active');
+    document.getElementById('ownerBtn').textContent = '✅ ADMIN';
+    document.getElementById('ownerPanel').classList.add('vis');
+    closePwd();
+    showToast('✅ Modo admin activado','ok');
+  } else {
+    document.getElementById('pwdErr').style.display = 'block';
+    document.getElementById('pwdIn').value = '';
+    document.getElementById('pwdIn').focus();
+  }
+}
+function logout(){
+  ownerMode = false;
+  document.body.classList.remove('owner-mode');
+  document.getElementById('ownerBtn').classList.remove('active');
+  document.getElementById('ownerBtn').textContent = '⚙ ADMIN';
+  document.getElementById('ownerPanel').classList.remove('vis');
+  showToast('Sesión admin cerrada','');
+}
+
+/* ============================================================
+   FACEBOOK
+============================================================ */
+function contactFB(name){
+  const msg = encodeURIComponent(`¡Hola! Estoy interesado/a en el curso de *${name}* que vi en su página. ¿Me pueden dar información sobre precio y forma de pago? 🙌`);
+  window.open(CONFIG.facebook + '?_rdr', '_blank');
+}
+
+/* ============================================================
+   UTILS
+============================================================ */
+function esc(s){
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+/* ============================================================
+   COUNTERS
+============================================================ */
+function animCounter(el, target, dur=2000){
+  let s = 0;
+  const step = target / (dur/16);
+  const t = setInterval(() => {
+    s += step;
+    if(s >= target){
+      el.textContent = target + (target===24?'/7':'+');
+      clearInterval(t);
+    } else {
+      el.textContent = Math.floor(s) + (target===24?'/7':'+');
+    }
+  }, 16);
+}
+
+/* ============================================================
+   REVEAL OBSERVER
+============================================================ */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((e,i) => {
+    if(e.isIntersecting){ setTimeout(() => e.target.classList.add('vis'), i*80); revealObs.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+
+const cntObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting){ animCounter(e.target, parseInt(e.target.dataset.target)); cntObs.unobserve(e.target); }
+  });
+}, { threshold: 0.5 });
+
+function reobserveReveal(){
+  document.querySelectorAll('.course-card').forEach(el => {
+    if(!el.classList.contains('vis')){ el.classList.add('vis'); }
+  });
+}
+
+/* ============================================================
+   PARALLAX
+============================================================ */
+window.addEventListener('scroll', () => {
+  const h = document.querySelector('.hero');
+  if(h) h.style.transform = `translateY(${scrollY * 0.12}px)`;
+}, { passive: true });
+
+/* ============================================================
+   CANVAS — PARTÍCULAS CYBERPUNK
+============================================================ */
+(function(){
+  const cv  = document.getElementById('bg-canvas');
+  const ctx = cv.getContext('2d');
+  let W, H, pts = [];
+
+  function resize(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+
+  const COLORS = ['#00f5ff','#7c3aed','#ff2d78','#00ff88'];
+
+  class Pt{
+    constructor(){ this.reset(); }
+    reset(){
+      this.x  = Math.random()*W; this.y  = Math.random()*H;
+      this.r  = Math.random()*1.4 + 0.3;
+      this.vx = (Math.random()-0.5)*0.45; this.vy = (Math.random()-0.5)*0.45;
+      this.a  = Math.random()*0.5 + 0.1;
+      this.c  = COLORS[Math.floor(Math.random()*COLORS.length)];
+      this.pulse = Math.random()*Math.PI*2;
+    }
+    update(){
+      this.x += this.vx; this.y += this.vy; this.pulse += 0.02;
+      this._pa = this.a * (0.7 + 0.3*Math.sin(this.pulse));
+      if(this.x<-10||this.x>W+10||this.y<-10||this.y>H+10) this.reset();
+    }
+    draw(){
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle = this.c; ctx.globalAlpha = this._pa||this.a; ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function init(){
+    pts = [];
+    const n = Math.min(120, Math.floor(W*H/7000));
+    for(let i=0;i<n;i++) pts.push(new Pt());
+  }
+
+  function lines(){
+    const md = 120;
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.sqrt(dx*dx+dy*dy);
+        if(d<md){
+          ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle=`rgba(0,245,255,${(1-d/md)*0.08})`; ctx.lineWidth=0.4; ctx.stroke();
+        }
+      }
+    }
+  }
+
+  let raf;
+  function frame(){ ctx.clearRect(0,0,W,H); pts.forEach(p=>{ p.update(); p.draw(); }); lines(); raf=requestAnimationFrame(frame); }
+
+  addEventListener('resize', () => { resize(); init(); });
+  resize(); init(); frame();
+})();
+
+/* ============================================================
+   INIT
+============================================================ */
+(async () => {
+  // FIX: cargar TODAS las imágenes de una sola vez antes de renderizar cards
+  await fetchAllCourseImgs();
+  renderCards();
+
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+  document.querySelectorAll('[data-target]').forEach(el => cntObs.observe(el));
+})();
+</script>
+</body>
+</html>
