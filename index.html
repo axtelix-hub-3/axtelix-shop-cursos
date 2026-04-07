@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nova Tech Edu — Cursos Digitales</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg:#020510;--bg2:#080f1e;--bg3:#0a1628;
       --cyan:#00f5ff;--purple:#7c3aed;--pink:#ff2d78;
       --green:#00ff88;--orange:#ff6b35;--text:#e2e8f0;--muted:#4a5568;
-      --tg:#1877F2;--tg2:#145dbf;
+      --msn:#0084FF;--msn2:#006ACC;
       --font-d:'Orbitron',monospace;--font-b:'Rajdhani',sans-serif;--font-m:'Share Tech Mono',monospace;
       --r:12px;--t:0.3s cubic-bezier(0.4,0,0.2,1);
       --glow-c:0 0 20px rgba(0,245,255,0.5);--glow-p:0 0 20px rgba(124,58,237,0.5);
@@ -37,7 +38,7 @@
     .page-wrapper{position:relative;z-index:1}
 
     /* NAVBAR */
-    .navbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0.9rem 2rem;background:rgba(2,5,16,0.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,245,255,0.18)}
+    .navbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0.9rem 2rem;background:rgba(2,5,16,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,245,255,0.18)}
     .navbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent)}
     .navbar-logo{font-family:var(--font-d);font-size:1.15rem;font-weight:900;color:var(--cyan);letter-spacing:4px;text-shadow:0 0 30px rgba(0,245,255,0.8);position:relative}
     .navbar-logo span{color:var(--purple)}
@@ -48,6 +49,131 @@
     .owner-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:0.6rem;padding:0.5rem 1rem;border-radius:3px;font-family:var(--font-m);letter-spacing:1px;transition:var(--t)}
     .owner-btn:hover{border-color:var(--purple);color:var(--purple)}
     .owner-btn.active{border-color:var(--green);color:var(--green);box-shadow:0 0 10px rgba(0,255,136,0.3)}
+
+    /* ============ FLOATING CART BUTTON ============ */
+    .fab-cart{position:fixed;bottom:96px;right:24px;z-index:400;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--pink),#c026d3);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(255,45,120,0.7),0 0 25px rgba(255,45,120,0.5);animation:cart-pulse 2.5s infinite;transition:transform 0.25s ease}
+    .fab-cart:hover{transform:scale(1.12)}
+    @keyframes cart-pulse{0%{box-shadow:0 0 0 0 rgba(255,45,120,0.7),0 0 25px rgba(255,45,120,0.5)}60%{box-shadow:0 0 0 14px rgba(255,45,120,0),0 0 30px rgba(255,45,120,0.6)}100%{box-shadow:0 0 0 0 rgba(255,45,120,0),0 0 25px rgba(255,45,120,0.5)}}
+    .fab-cart i{font-size:1.4rem;color:#fff}
+    .cart-badge{position:absolute;top:-4px;right:-4px;background:var(--cyan);color:#000;font-family:var(--font-d);font-size:0.55rem;font-weight:900;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);box-shadow:0 0 10px rgba(0,245,255,0.6);transition:transform 0.2s}
+    .cart-badge.pop{animation:badge-pop 0.3s ease}
+    @keyframes badge-pop{0%{transform:scale(1)}50%{transform:scale(1.5)}100%{transform:scale(1)}}
+
+    /* FLOATING MESSENGER BUTTON */
+    .fab-msn{position:fixed;bottom:24px;right:24px;z-index:400;width:60px;height:60px;border-radius:50%;background:var(--msn);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(0,132,255,0.7);animation:msn-pulse 2.5s infinite;transition:transform 0.25s ease,box-shadow 0.25s ease;text-decoration:none}
+    .fab-msn:hover{transform:scale(1.12);box-shadow:0 0 30px rgba(0,132,255,0.9),0 0 60px rgba(0,132,255,0.4)}
+    .fab-msn i{font-size:1.55rem;color:#fff}
+    @keyframes msn-pulse{0%{box-shadow:0 0 0 0 rgba(0,132,255,0.7)}60%{box-shadow:0 0 0 14px rgba(0,132,255,0)}100%{box-shadow:0 0 0 0 rgba(0,132,255,0)}}
+
+    /* ============ CHECKOUT MODAL ============ */
+    .checkout-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.35s ease}
+    .checkout-overlay.active{opacity:1;pointer-events:all}
+    .checkout-modal{background:linear-gradient(160deg,rgba(8,15,30,0.98),rgba(10,22,40,0.99));border:1px solid rgba(255,45,120,0.3);border-radius:20px;max-width:640px;width:100%;position:relative;transform:scale(0.9) translateY(30px);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);max-height:90vh;overflow-y:auto;box-shadow:0 0 60px rgba(255,45,120,0.15),0 0 120px rgba(124,58,237,0.1)}
+    .checkout-modal::-webkit-scrollbar{width:3px}
+    .checkout-modal::-webkit-scrollbar-thumb{background:rgba(255,45,120,0.3);border-radius:2px}
+    .checkout-overlay.active .checkout-modal{transform:scale(1) translateY(0)}
+    .co-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80%;height:2px;background:linear-gradient(90deg,transparent,var(--pink),var(--purple),transparent);box-shadow:0 0 20px rgba(255,45,120,0.5)}
+    .co-corner{position:absolute;width:22px;height:22px}
+    .co-corner.tl{top:0;left:0;border-top:2px solid var(--pink);border-left:2px solid var(--pink)}
+    .co-corner.tr{top:0;right:0;border-top:2px solid var(--purple);border-right:2px solid var(--purple)}
+    .co-corner.bl{bottom:0;left:0;border-bottom:2px solid rgba(255,45,120,0.4);border-left:2px solid rgba(255,45,120,0.4)}
+    .co-corner.br{bottom:0;right:0;border-bottom:2px solid rgba(124,58,237,0.4);border-right:2px solid rgba(124,58,237,0.4)}
+    .co-head{padding:1.8rem 2rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06)}
+    .co-title{font-family:var(--font-d);font-size:1rem;font-weight:900;color:var(--text);letter-spacing:2px}
+    .co-title span{color:var(--pink);text-shadow:0 0 14px rgba(255,45,120,0.5)}
+    .co-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--muted);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:var(--t)}
+    .co-close:hover{background:rgba(255,45,120,0.2);border-color:var(--pink);color:var(--pink)}
+
+    /* Cart summary */
+    .co-summary{padding:1.2rem 2rem}
+    .co-sum-title{font-family:var(--font-d);font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem}
+    .co-sum-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,245,255,0.3),transparent)}
+    .co-course-list{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem}
+    .co-course-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.6rem 0.9rem;transition:var(--t)}
+    .co-course-item:hover{border-color:rgba(255,45,120,0.2)}
+    .co-course-name{font-size:0.85rem;color:var(--text);font-family:var(--font-b)}
+    .co-course-price{font-family:var(--font-m);font-size:0.75rem;color:var(--cyan)}
+    .co-course-rm{background:transparent;border:none;color:rgba(255,45,120,0.4);font-size:0.7rem;padding:0.1rem 0.3rem;transition:var(--t);line-height:1}
+    .co-course-rm:hover{color:var(--pink)}
+    .co-total-row{display:flex;align-items:center;justify-content:space-between;padding:0.9rem 0;border-top:1px solid rgba(255,255,255,0.08)}
+    .co-total-lbl{font-family:var(--font-d);font-size:0.65rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+    .co-total-amt{font-family:var(--font-d);font-size:1.6rem;font-weight:900;color:var(--pink);text-shadow:0 0 20px rgba(255,45,120,0.4)}
+    .co-empty{text-align:center;padding:2rem;color:var(--muted);font-family:var(--font-m);font-size:0.7rem;letter-spacing:2px}
+
+    /* Payment method selector */
+    .co-method{padding:0 2rem 1.2rem}
+    .co-method-title{font-family:var(--font-d);font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem}
+    .co-method-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,245,255,0.3),transparent)}
+    .co-method-btns{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem}
+    .co-method-btn{padding:0.9rem 1rem;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:var(--text);font-family:var(--font-b);font-size:0.88rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:var(--t);position:relative;overflow:hidden}
+    .co-method-btn:hover{transform:translateY(-2px)}
+    .co-method-btn.transfer{border-color:rgba(0,245,255,0.3)}
+    .co-method-btn.transfer:hover{border-color:var(--cyan);background:rgba(0,245,255,0.07);box-shadow:0 0 20px rgba(0,245,255,0.15)}
+    .co-method-btn.messenger-btn{border-color:rgba(0,132,255,0.3)}
+    .co-method-btn.messenger-btn:hover{border-color:var(--msn);background:rgba(0,132,255,0.1);box-shadow:0 0 20px rgba(0,132,255,0.2)}
+    .co-method-btn i{font-size:1.1rem}
+    .co-method-btn.transfer i{color:var(--cyan)}
+    .co-method-btn.messenger-btn i{color:#4fc3f7}
+
+    /* Transfer section */
+    .co-transfer{padding:0 2rem 1.5rem;display:none}
+    .co-transfer.active{display:block}
+
+    /* ============ GALACTIC CARD ============ */
+    .galactic-card{position:relative;width:100%;max-width:380px;height:215px;margin:0 auto 1.5rem;border-radius:18px;overflow:hidden;cursor:default;user-select:none}
+    .gc-bg{position:absolute;inset:0;background:linear-gradient(135deg,rgba(15,5,40,0.85) 0%,rgba(30,10,60,0.9) 40%,rgba(10,15,50,0.85) 70%,rgba(5,5,25,0.9) 100%);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:18px;box-shadow:0 0 40px rgba(124,58,237,0.3),0 0 20px rgba(255,255,255,0.05),inset 0 1px 0 rgba(255,255,255,0.15)}
+    .gc-shine{position:absolute;inset:0;border-radius:18px;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,0.08) 40%,rgba(255,255,255,0.18) 50%,rgba(255,255,255,0.08) 60%,transparent 80%);background-size:200% 100%;animation:card-shine 3s ease-in-out infinite;pointer-events:none}
+    @keyframes card-shine{0%{background-position:-200% 0;opacity:0}10%{opacity:1}50%{background-position:200% 0;opacity:1}60%{opacity:0}100%{background-position:200% 0;opacity:0}}
+    .gc-grid{position:absolute;inset:0;border-radius:18px;background-image:linear-gradient(rgba(124,58,237,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.06) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+    .gc-orb1{position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.4) 0%,transparent 70%);top:-60px;right:-40px;pointer-events:none}
+    .gc-orb2{position:absolute;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(0,245,255,0.2) 0%,transparent 70%);bottom:-40px;left:-30px;pointer-events:none}
+    .gc-content{position:relative;z-index:2;padding:1.4rem 1.6rem;height:100%;display:flex;flex-direction:column;justify-content:space-between}
+    .gc-top{display:flex;align-items:center;justify-content:space-between}
+    .gc-bank{font-family:var(--font-d);font-size:0.75rem;font-weight:900;letter-spacing:3px;color:rgba(255,255,255,0.9);text-shadow:0 0 15px rgba(255,255,255,0.3)}
+    .gc-chip{width:36px;height:28px;border-radius:5px;background:linear-gradient(135deg,#d4a843,#f0c060,#b8860b);border:1px solid rgba(255,200,80,0.4);position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+    .gc-chip::after{content:'';position:absolute;inset:4px;border-radius:3px;border:1px solid rgba(255,200,80,0.5);background:linear-gradient(135deg,rgba(255,200,80,0.1),rgba(255,180,40,0.2))}
+    .gc-mid{display:flex;flex-direction:column;gap:0.3rem}
+    .gc-clabe-lbl{font-family:var(--font-m);font-size:0.5rem;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase}
+    .gc-clabe{font-family:var(--font-m);font-size:1rem;letter-spacing:4px;color:rgba(255,255,255,0.95);text-shadow:0 0 10px rgba(255,255,255,0.2);word-spacing:8px}
+    .gc-bottom{display:flex;align-items:flex-end;justify-content:space-between}
+    .gc-holder-block{display:flex;flex-direction:column;gap:0.15rem}
+    .gc-holder-lbl{font-family:var(--font-m);font-size:0.45rem;letter-spacing:3px;color:rgba(255,255,255,0.35);text-transform:uppercase}
+    .gc-holder-name{font-family:var(--font-d);font-size:0.72rem;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.9)}
+    .gc-logo{font-family:var(--font-d);font-size:0.7rem;font-weight:900;color:rgba(255,255,255,0.7);text-align:right;line-height:1.2}
+    .gc-logo .gc-logo-top{color:var(--cyan);filter:drop-shadow(0 0 6px rgba(0,245,255,0.6))}
+
+    /* How it works */
+    .co-how{background:rgba(0,245,255,0.03);border:1px solid rgba(0,245,255,0.1);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem}
+    .co-how-title{font-family:var(--font-d);font-size:0.55rem;letter-spacing:3px;color:var(--cyan);margin-bottom:0.7rem;text-transform:uppercase}
+    .co-how-steps{display:flex;flex-direction:column;gap:0.45rem}
+    .co-how-step{display:flex;align-items:flex-start;gap:0.7rem;font-size:0.82rem;color:var(--muted)}
+    .co-how-num{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-family:var(--font-d);font-size:0.55rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 10px rgba(0,245,255,0.3)}
+
+    /* Copy CLABE btn */
+    .btn-copy-clabe{display:flex;align-items:center;gap:0.4rem;background:rgba(0,245,255,0.07);border:1px solid rgba(0,245,255,0.25);color:var(--cyan);font-family:var(--font-m);font-size:0.6rem;letter-spacing:1px;padding:0.4rem 1rem;border-radius:6px;margin:0 auto 1.2rem;transition:var(--t)}
+    .btn-copy-clabe:hover{background:rgba(0,245,255,0.14);box-shadow:0 0 12px rgba(0,245,255,0.2)}
+
+    /* Form */
+    .co-form-title{font-family:var(--font-d);font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--pink);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem}
+    .co-form-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,45,120,0.3),transparent)}
+    .co-f-group{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem}
+    .co-f-lbl{font-family:var(--font-m);font-size:0.6rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+    .co-f-inp{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);color:var(--text);font-family:var(--font-b);font-size:0.95rem;padding:0.65rem 0.9rem;border-radius:8px;outline:none;transition:var(--t);width:100%}
+    .co-f-inp:focus{border-color:rgba(255,45,120,0.45);box-shadow:0 0 0 3px rgba(255,45,120,0.08)}
+    .co-f-inp::placeholder{color:var(--muted);font-size:0.85rem}
+    .btn-confirm{background:linear-gradient(135deg,var(--pink),#c026d3);color:#fff;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:1rem 2rem;border-radius:10px;transition:var(--t);text-transform:uppercase;width:100%;margin-top:0.8rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;position:relative;overflow:hidden;box-shadow:0 0 25px rgba(255,45,120,0.3)}
+    .btn-confirm::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.15);transform:translateX(-100%) skewX(-15deg);transition:0.5s}
+    .btn-confirm:hover::before{transform:translateX(150%) skewX(-15deg)}
+    .btn-confirm:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(255,45,120,0.5)}
+    .btn-confirm:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+
+    /* Success state */
+    .co-success{display:none;flex-direction:column;align-items:center;text-align:center;padding:3rem 2rem;gap:1rem}
+    .co-success.active{display:flex}
+    .success-icon{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 0 30px rgba(0,255,136,0.4);animation:success-pop 0.5s ease}
+    @keyframes success-pop{0%{transform:scale(0)}80%{transform:scale(1.15)}100%{transform:scale(1)}}
+    .success-title{font-family:var(--font-d);font-size:1.1rem;font-weight:900;color:var(--green);text-shadow:0 0 20px rgba(0,255,136,0.4)}
+    .success-msg{color:var(--muted);font-size:0.9rem;max-width:340px;line-height:1.6}
 
     /* HERO */
     .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6rem 1.5rem 4rem;position:relative}
@@ -122,6 +248,20 @@
     .stock-badge.out{background:rgba(255,45,120,0.08);border:1px solid rgba(255,45,120,0.4);color:var(--pink)}
     .stock-badge.out::before{content:'✕';font-size:0.5rem}
 
+    /* CATEGORY ICON */
+    .card-icon-wrap{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.15);position:relative;overflow:hidden}
+    .card-icon-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,255,0.1),transparent);pointer-events:none}
+    .card-icon-wrap i{font-size:1.5rem;position:relative;z-index:1}
+    .cat-idiomas i{color:#00ff88;filter:drop-shadow(0 0 6px #00ff88)}
+    .cat-cyber i{color:#ffaa00;filter:drop-shadow(0 0 6px #ffaa00)}
+    .cat-ofimática i{color:#00ccff;filter:drop-shadow(0 0 6px #00ccff)}
+    .cat-automotriz i{color:#9ca3af;filter:drop-shadow(0 0 6px #9ca3af)}
+    .cat-arte i{color:#ec4899;filter:drop-shadow(0 0 6px #ec4899)}
+    .cat-finanzas i{color:#10b981;filter:drop-shadow(0 0 6px #10b981)}
+    .cat-edicion i{color:#a855f7;filter:drop-shadow(0 0 6px #a855f7)}
+    .cat-paquete i{color:#f97316;filter:drop-shadow(0 0 6px #f97316)}
+    .cat-programacion i{color:#06b6d4;filter:drop-shadow(0 0 6px #06b6d4)}
+
     /* COURSES GRID */
     .courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.8rem}
     .course-card{background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(8,15,30,0.98));border:1px solid rgba(0,245,255,0.1);border-radius:var(--r);overflow:hidden;position:relative;display:flex;flex-direction:column;transition:border-color 0.35s ease,box-shadow 0.35s ease,transform 0.35s ease}
@@ -137,8 +277,6 @@
     .card-corner.br{bottom:0;right:0;border-bottom:2px solid var(--card-accent,var(--cyan));border-right:2px solid var(--card-accent,var(--cyan));opacity:0.4}
     .course-card:hover .card-corner{opacity:1}
     .card-head{padding:1.8rem 1.6rem 1rem;display:flex;align-items:flex-start;gap:1rem}
-    .card-icon-wrap{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.15);position:relative;overflow:hidden}
-    .card-icon-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,255,0.1),transparent);pointer-events:none}
     .card-meta{flex:1}
     .card-cat{font-family:var(--font-m);font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--card-accent,var(--cyan));margin-bottom:0.3rem}
     .card-ttl{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--text);line-height:1.3}
@@ -156,17 +294,27 @@
     .card-desc{color:var(--muted);font-size:0.88rem;line-height:1.6;margin-bottom:0.8rem}
     .card-tags{display:flex;flex-wrap:wrap;gap:0.35rem}
     .tag{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:var(--muted);font-size:0.62rem;padding:0.18rem 0.55rem;border-radius:2px;font-family:var(--font-m)}
+
+    /* CARD FOOT */
     .card-foot{padding:1rem 1.6rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:0.7rem;background:rgba(0,0,0,0.2)}
-    .card-price{font-family:var(--font-d);font-size:1.2rem;font-weight:900;color:var(--card-accent,var(--cyan));text-shadow:0 0 10px rgba(0,245,255,0.3)}
-    .card-price span{font-size:0.65rem;font-weight:400;color:var(--muted);font-family:var(--font-b);display:block}
+    .card-price{display:flex;flex-direction:column;gap:0.1rem}
+    .price-anchor{font-family:var(--font-m);font-size:0.6rem;color:#4a5568;text-decoration:line-through;letter-spacing:1px}
+    .price-main{font-family:var(--font-d);font-size:1.2rem;font-weight:900;color:var(--card-accent,var(--cyan));text-shadow:0 0 14px rgba(0,245,255,0.5)}
+    .price-badge{display:inline-block;font-family:var(--font-m);font-size:0.48rem;letter-spacing:2px;background:linear-gradient(90deg,var(--orange),var(--pink));color:#fff;padding:0.12rem 0.45rem;border-radius:2px;text-transform:uppercase;margin-top:0.1rem;width:fit-content}
+    .price-note{font-size:0.65rem;font-weight:400;color:var(--muted);font-family:var(--font-b)}
     .card-acts{display:flex;gap:0.4rem}
     .btn-detail{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:0.65rem;padding:0.45rem 0.85rem;border-radius:5px;font-family:var(--font-b);transition:var(--t);letter-spacing:1px}
     .btn-detail:hover{border-color:rgba(0,245,255,0.3);color:var(--text);background:rgba(0,245,255,0.05)}
-    /* FACEBOOK BUTTONS */
-    .btn-fb{background:linear-gradient(135deg,var(--tg),var(--tg2));color:#fff;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;transition:var(--t);display:flex;align-items:center;gap:0.3rem}
-    .btn-fb:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(24,119,242,0.5)}
-    .btn-fb svg{width:13px;height:13px}
-    .btn-fb-dis{background:rgba(100,116,139,0.2);color:var(--muted);cursor:not-allowed;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:0.3rem}
+    .btn-msn{background:linear-gradient(135deg,var(--msn),var(--msn2));color:#fff;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;transition:var(--t);display:flex;align-items:center;gap:0.3rem}
+    .btn-msn:hover{transform:scale(1.05);box-shadow:0 4px 18px rgba(0,132,255,0.6)}
+    .btn-msn i{font-size:0.85rem}
+    .btn-msn-dis{background:rgba(100,116,139,0.2);color:var(--muted);cursor:not-allowed;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:0.3rem}
+
+    /* ADD TO CART BUTTON */
+    .btn-add-cart{background:linear-gradient(135deg,var(--pink),#c026d3);color:#fff;font-size:0.6rem;padding:0.45rem 0.75rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;transition:var(--t);display:flex;align-items:center;gap:0.25rem;border:none}
+    .btn-add-cart:hover{transform:scale(1.05);box-shadow:0 4px 18px rgba(255,45,120,0.5)}
+    .btn-add-cart.in-cart{background:rgba(255,45,120,0.1);border:1px solid rgba(255,45,120,0.4);color:var(--pink)}
+    .btn-add-cart.in-cart:hover{background:rgba(255,45,120,0.2)}
 
     /* LIGHTBOX */
     .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(10px)}
@@ -187,7 +335,8 @@
     .modal-corner.tl{top:0;left:0;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
     .modal-corner.tr{top:0;right:0;border-top:2px solid var(--purple);border-right:2px solid var(--purple)}
     .modal-head{padding:2rem 2rem 1rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
-    .modal-icon{width:64px;height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.2);flex-shrink:0;box-shadow:0 0 20px rgba(0,245,255,0.1)}
+    .modal-icon{width:64px;height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.2);flex-shrink:0;box-shadow:0 0 20px rgba(0,245,255,0.1)}
+    .modal-icon i{font-size:1.8rem}
     .modal-title-block{flex:1}
     .modal-cat{font-family:var(--font-m);font-size:0.6rem;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);margin-bottom:0.3rem}
     .modal-ttl{font-family:var(--font-d);font-size:1.4rem;font-weight:900}
@@ -224,11 +373,14 @@
     .inc-item:hover{border-color:rgba(0,245,255,0.15);background:rgba(0,245,255,0.03)}
     .inc-icon{font-size:0.95rem}
     .modal-foot{padding:1.5rem 2rem 2rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:rgba(0,0,0,0.2)}
+    .modal-price-block{display:flex;flex-direction:column;gap:0.2rem}
+    .modal-price-anchor{font-family:var(--font-m);font-size:0.65rem;color:#4a5568;text-decoration:line-through;letter-spacing:1px}
     .modal-price{font-family:var(--font-d);font-size:1.8rem;font-weight:900;color:var(--cyan);text-shadow:0 0 20px rgba(0,245,255,0.4)}
+    .modal-price-badge{display:inline-block;font-family:var(--font-m);font-size:0.5rem;letter-spacing:2px;background:linear-gradient(90deg,var(--orange),var(--pink));color:#fff;padding:0.14rem 0.5rem;border-radius:2px;text-transform:uppercase;width:fit-content}
     .modal-price-note{font-size:0.72rem;color:var(--muted)}
-    .btn-cotizar-fb{background:linear-gradient(135deg,var(--tg),var(--tg2));color:#fff;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;transition:var(--t);display:flex;align-items:center;gap:0.5rem;text-transform:uppercase;box-shadow:0 0 20px rgba(24,119,242,0.3)}
-    .btn-cotizar-fb:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(24,119,242,0.6)}
-    .btn-cotizar-fb svg{width:18px;height:18px}
+    .btn-cotizar-msn{background:linear-gradient(135deg,var(--msn),var(--msn2));color:#fff;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;transition:var(--t);display:flex;align-items:center;gap:0.5rem;text-transform:uppercase;box-shadow:0 0 20px rgba(0,132,255,0.3)}
+    .btn-cotizar-msn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,132,255,0.7)}
+    .btn-cotizar-msn i{font-size:1rem}
     .btn-cotizar-dis{background:rgba(100,116,139,0.2);color:var(--muted);cursor:not-allowed;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;display:flex;align-items:center;gap:0.5rem}
     .no-stock-banner{background:rgba(255,45,120,0.07);border:1px solid rgba(255,45,120,0.3);color:var(--pink);font-family:var(--font-m);font-size:0.7rem;letter-spacing:2px;padding:0.7rem 1rem;border-radius:6px;text-align:center;width:100%}
 
@@ -334,9 +486,14 @@
       .modal-foot{flex-direction:column;align-items:stretch;text-align:center}
       section{padding:3rem 1rem}
       .cta-sec{padding:2rem 1rem}
-      .owner-panel{bottom:1rem;right:1rem;left:1rem;min-width:unset}
+      .owner-panel{bottom:5.5rem;right:1rem;left:1rem;min-width:unset}
       .banner-content{padding:1.8rem 1.5rem}
       .banner-inner{min-height:220px}
+      .fab-msn{bottom:20px;right:20px;width:54px;height:54px}
+      .fab-cart{bottom:86px;right:20px;width:54px;height:54px}
+      .co-method-btns{grid-template-columns:1fr}
+      .galactic-card{height:190px}
+      .gc-clabe{font-size:0.8rem;letter-spacing:2px}
     }
     @media(max-width:480px){
       .hero-title{font-size:2.1rem}
@@ -393,7 +550,7 @@
       <div class="banner-content">
         <div class="banner-label">Destacado</div>
         <h2 class="banner-title" id="bannerTitle">Aprende con los<br><span>Mejores Cursos</span></h2>
-        <p class="banner-sub" id="bannerSub">Acceso inmediato a materiales exclusivos. Paga y recibe tu contenido al instante por Facebook.</p>
+        <p class="banner-sub" id="bannerSub">Acceso inmediato a materiales exclusivos. Paga y recibe tu contenido al instante por Messenger.</p>
         <a href="#cursos" class="banner-btn">Ver todos los cursos →</a>
       </div>
       <div class="banner-empty-hint" id="bannerEmptyHint">SIN BANNER<br>AÚN</div>
@@ -405,18 +562,18 @@
   <!-- TICKER -->
   <div class="ticker-wrap">
     <div class="ticker-track">
-      <div class="ticker-item">⚡ <span>ACCESO INMEDIATO</span> VÍA FACEBOOK</div>
+      <div class="ticker-item">⚡ <span>ACCESO INMEDIATO</span> VÍA MESSENGER</div>
       <div class="ticker-item">🔐 <span>CONTENIDO PRIVADO</span> SOLO TRAS EL PAGO</div>
       <div class="ticker-item">📱 <span>APRENDE DESDE TU CELULAR</span> O PC</div>
       <div class="ticker-item">🛠 <span>SOPORTE DIRECTO</span> SIN BOTS</div>
       <div class="ticker-item">🚀 <span>CONTENIDO ACTUALIZADO</span> REGULARMENTE</div>
       <div class="ticker-item">⭐ <span>RESEÑAS REALES</span> GUARDADAS EN LA NUBE</div>
-      <div class="ticker-item">⚡ <span>ACCESO INMEDIATO</span> VÍA FACEBOOK</div>
+      <div class="ticker-item">🛒 <span>CARRITO MULTI-CURSO</span> DESCUENTO AUTOMÁTICO</div>
+      <div class="ticker-item">⚡ <span>ACCESO INMEDIATO</span> VÍA MESSENGER</div>
       <div class="ticker-item">🔐 <span>CONTENIDO PRIVADO</span> SOLO TRAS EL PAGO</div>
       <div class="ticker-item">📱 <span>APRENDE DESDE TU CELULAR</span> O PC</div>
       <div class="ticker-item">🛠 <span>SOPORTE DIRECTO</span> SIN BOTS</div>
       <div class="ticker-item">🚀 <span>CONTENIDO ACTUALIZADO</span> REGULARMENTE</div>
-      <div class="ticker-item">⭐ <span>RESEÑAS REALES</span> GUARDADAS EN LA NUBE</div>
     </div>
   </div>
 
@@ -424,7 +581,7 @@
   <section id="cursos" style="padding-top:5rem">
     <div class="sec-lbl reveal"># Catálogo</div>
     <h2 class="sec-title reveal">Nuestros Cursos</h2>
-    <p class="sec-desc reveal">Haz clic en <em>Detalle</em> para ver contenido, capturas ampliables y reseñas reales. Todo guardado en la nube.</p>
+    <p class="sec-desc reveal">Haz clic en <em>Detalle</em> para ver contenido completo. Usa 🛒 <strong>Agregar</strong> para comprar varios cursos a la vez y ahorrar.</p>
     <div class="courses-grid" id="coursesGrid"></div>
   </section>
 
@@ -438,10 +595,10 @@
       <div class="feat-item reveal"><div class="feat-icon">⚡</div><div class="feat-title">ACCESO INMEDIATO</div><p class="feat-desc">Confirma tu pago y recibe acceso al instante.</p></div>
       <div class="feat-item reveal"><div class="feat-icon">📱</div><div class="feat-title">APRENDE DONDE SEA</div><p class="feat-desc">100% digital. Celular, tablet o computadora.</p></div>
       <div class="feat-item reveal"><div class="feat-icon">🔄</div><div class="feat-title">ACTUALIZACIONES</div><p class="feat-desc">Contenido renovado regularmente.</p></div>
-      <div class="feat-item reveal"><div class="feat-icon">💬</div><div class="feat-title">SOPORTE DIRECTO</div><p class="feat-desc">Dudas resueltas por Facebook. Sin bots.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">💬</div><div class="feat-title">SOPORTE DIRECTO</div><p class="feat-desc">Dudas resueltas por Messenger. Sin bots.</p></div>
       <div class="feat-item reveal"><div class="feat-icon">🔒</div><div class="feat-title">CONTENIDO PRIVADO</div><p class="feat-desc">Materiales entregados solo tras el pago.</p></div>
       <div class="feat-item reveal"><div class="feat-icon">🎯</div><div class="feat-title">RESULTADOS REALES</div><p class="feat-desc">Cientos de estudiantes ya aplicando lo aprendido.</p></div>
-      <div class="feat-item reveal"><div class="feat-icon">📦</div><div class="feat-title">PAQUETES A MEDIDA</div><p class="feat-desc">Arma tu paquete personalizado a mejor precio.</p></div>
+      <div class="feat-item reveal"><div class="feat-icon">📦</div><div class="feat-title">PAQUETES A MEDIDA</div><p class="feat-desc">Arma tu carrito y compra varios cursos juntos.</p></div>
       <div class="feat-item reveal"><div class="feat-icon">☁️</div><div class="feat-title">RESEÑAS EN LA NUBE</div><p class="feat-desc">Opiniones reales guardadas permanentemente.</p></div>
     </div>
   </section>
@@ -453,11 +610,16 @@
     <div class="cta-sec reveal">
       <div class="sec-lbl">¿Listo para empezar?</div>
       <h2 class="sec-title">Invierte en tu futuro hoy</h2>
-      <p class="sec-desc" style="margin:0 auto 2rem">Elige el curso que necesitas y contáctanos por Facebook para recibir toda la información.</p>
-      <button class="btn-cotizar-fb" style="margin:0 auto" onclick="contactFB('un curso')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        Escribir por Facebook
-      </button>
+      <p class="sec-desc" style="margin:0 auto 2rem">Elige el curso que necesitas, agrégalo al carrito y completa tu pedido en segundos.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn-cotizar-msn" onclick="openCheckout()">
+          🛒 Ver mi Carrito
+        </button>
+        <button class="btn-cotizar-msn" style="background:linear-gradient(135deg,var(--msn),var(--msn2))" onclick="contactMessenger('un curso')">
+          <i class="fab fa-facebook-messenger"></i>
+          Escribir por Messenger
+        </button>
+      </div>
     </div>
   </section>
 
@@ -472,7 +634,142 @@
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- FLOATING CART BUTTON -->
+<button class="fab-cart" onclick="openCheckout()" title="Ver carrito">
+  <i class="fas fa-shopping-cart"></i>
+  <span class="cart-badge" id="cartBadge">0</span>
+</button>
+
+<!-- FLOATING MESSENGER BUTTON -->
+<a href="https://m.me/1102182976302066" target="_blank" class="fab-msn" title="Contactar por Messenger">
+  <i class="fab fa-facebook-messenger"></i>
+</a>
+
+<!-- ============ CHECKOUT MODAL ============ -->
+<div class="checkout-overlay" id="checkoutOverlay" onclick="closeCheckoutOut(event)">
+  <div class="checkout-modal" id="checkoutModal">
+    <div class="co-glow"></div>
+    <div class="co-corner tl"></div>
+    <div class="co-corner tr"></div>
+    <div class="co-corner bl"></div>
+    <div class="co-corner br"></div>
+
+    <div class="co-head">
+      <div class="co-title">🛒 Mi <span>Carrito</span></div>
+      <button class="co-close" onclick="closeCheckout()">✕</button>
+    </div>
+
+    <!-- Success state -->
+    <div class="co-success" id="coSuccess">
+      <div class="success-icon">✅</div>
+      <div class="success-title">¡Pedido Recibido!</div>
+      <p class="success-msg">Te contactaremos en breve por Gmail y WhatsApp para enviarte el acceso a tus cursos. ¡Gracias por tu compra!</p>
+      <button class="btn-confirm" style="max-width:220px;margin-top:0.5rem" onclick="closeCheckout()">Cerrar ✓</button>
+    </div>
+
+    <!-- Main content -->
+    <div id="coMain">
+      <!-- Summary -->
+      <div class="co-summary">
+        <div class="co-sum-title">Resumen del pedido</div>
+        <div class="co-course-list" id="coList">
+          <div class="co-empty" id="coEmpty">Tu carrito está vacío. Agrega cursos desde el catálogo 👆</div>
+        </div>
+        <div class="co-total-row" id="coTotalRow" style="display:none">
+          <span class="co-total-lbl">Total a pagar</span>
+          <span class="co-total-amt" id="coTotalAmt">$0 MXN</span>
+        </div>
+      </div>
+
+      <!-- Method selector -->
+      <div class="co-method" id="coMethod" style="display:none">
+        <div class="co-method-title">Elige cómo pagar</div>
+        <div class="co-method-btns">
+          <button class="co-method-btn transfer" onclick="showTransfer()">
+            <i class="fas fa-university" style="color:var(--cyan)"></i>
+            Transferencia Bancaria
+          </button>
+          <button class="co-method-btn messenger-btn" onclick="contactMessengerCart()">
+            <i class="fab fa-facebook-messenger" style="color:#4fc3f7"></i>
+            Consultar por Messenger
+          </button>
+        </div>
+      </div>
+
+      <!-- Transfer form -->
+      <div class="co-transfer" id="coTransfer">
+
+        <!-- Galactic Card -->
+        <div class="co-summary" style="padding-top:0">
+          <div class="co-sum-title">Datos bancarios</div>
+          <div class="galactic-card">
+            <div class="gc-bg"></div>
+            <div class="gc-shine"></div>
+            <div class="gc-grid"></div>
+            <div class="gc-orb1"></div>
+            <div class="gc-orb2"></div>
+            <div class="gc-content">
+              <div class="gc-top">
+                <div class="gc-bank">BANCOPPEL</div>
+                <div class="gc-chip"></div>
+              </div>
+              <div class="gc-mid">
+                <div class="gc-clabe-lbl">CLABE Interbancaria</div>
+                <div class="gc-clabe">1373 2610 0767 5685 10</div>
+              </div>
+              <div class="gc-bottom">
+                <div class="gc-holder-block">
+                  <div class="gc-holder-lbl">Beneficiario</div>
+                  <div class="gc-holder-name">ENRIQUE VILLA</div>
+                </div>
+                <div class="gc-logo">
+                  <div class="gc-logo-top">NOVA</div>
+                  <div>TECH EDU</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-copy-clabe" onclick="copyClabe()">
+            <i class="fas fa-copy"></i> Copiar CLABE
+          </button>
+
+          <!-- How it works -->
+          <div class="co-how">
+            <div class="co-how-title">📋 Cómo funciona</div>
+            <div class="co-how-steps">
+              <div class="co-how-step"><div class="co-how-num">1</div><span>Transfiere el monto exacto a la CLABE indicada.</span></div>
+              <div class="co-how-step"><div class="co-how-num">2</div><span>Llena tus datos en el formulario de abajo.</span></div>
+              <div class="co-how-step"><div class="co-how-num">3</div><span>Recibirás acceso a Google Drive en menos de 5 min por Gmail y WhatsApp.</span></div>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="co-form-title">Confirmar datos de entrega</div>
+          <div class="co-f-group">
+            <label class="co-f-lbl">Nombre Completo *</label>
+            <input type="text" class="co-f-inp" id="cfNombre" placeholder="Ej: Juan Pérez García">
+          </div>
+          <div class="co-f-group">
+            <label class="co-f-lbl">Gmail * (para enviarte el acceso)</label>
+            <input type="email" class="co-f-inp" id="cfGmail" placeholder="tucorreo@gmail.com">
+          </div>
+          <div class="co-f-group">
+            <label class="co-f-lbl">WhatsApp (con lada)</label>
+            <input type="tel" class="co-f-inp" id="cfWa" placeholder="+52 3312345678">
+          </div>
+
+          <button class="btn-confirm" id="btnConfirmar" onclick="confirmarPedido()">
+            <i class="fas fa-check-circle"></i>
+            Confirmar Pago y Enviar Datos
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (Detalle de curso) -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOut(event)">
   <div class="modal" id="modal">
     <div class="modal-glow"></div>
@@ -483,7 +780,7 @@
     </div>
     <div id="modalContent">
       <div class="modal-head">
-        <div class="modal-icon" id="mIcon">📚</div>
+        <div class="modal-icon" id="mIcon"></div>
         <div class="modal-title-block">
           <div class="modal-cat" id="mCat"></div>
           <div class="modal-ttl" id="mTtl"></div>
@@ -527,8 +824,10 @@
         </div>
       </div>
       <div class="modal-foot">
-        <div>
+        <div class="modal-price-block">
+          <div class="modal-price-anchor" id="mPriceAnchor">Precio regular: $399 MXN</div>
           <div class="modal-price" id="mPrice"></div>
+          <div class="modal-price-badge" id="mPriceBadge">🔥 Oferta de Lanzamiento</div>
           <div class="modal-price-note">Contáctanos para pagar y recibir acceso inmediato</div>
           <div id="mNoStock" style="display:none" class="no-stock-banner">⛔ SIN STOCK — Escríbenos para avisarte cuando esté disponible</div>
         </div>
@@ -568,56 +867,240 @@
 
 <script>
 /* ============================================================
-   SUPABASE
+   SUPABASE — Reemplaza estas dos constantes con tus credenciales
 ============================================================ */
+const SUPABASE_URL  = 'https://rttdgoysimrzxmoatfgh.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dGRnb3lzaW1yenhtb2F0ZmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MzI3NDQsImV4cCI6MjA5MTAwODc0NH0.mysmpB4poO_6zf8UXHZh3CD4Y0CgB4sXPhbHzhOgsQI';
+
 const { createClient } = supabase;
-const sb = createClient(
-  'https://rttdgoysimrzxmoatfgh.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dGRnb3lzaW1yenhtb2F0ZmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MzI3NDQsImV4cCI6MjA5MTAwODc0NH0.mysmpB4poO_6zf8UXHZh3CD4Y0CgB4sXPhbHzhOgsQI'
-);
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ============================================================
    CONFIG
 ============================================================ */
 const CONFIG = {
-  facebook: "https://www.facebook.com/share/17ZE68RmVe/",
+  messenger: "https://m.me/1102182976302066",
   ownerPassword: "admin2008",
-  bannerTitle: "Aprende con los <span>Mejores Cursos</span>",
-  bannerSub: "Acceso inmediato a materiales exclusivos. Paga y recibe tu contenido al instante por Facebook."
+  clabe: "137326100767568510",
+  clabeDisplay: "1373 2610 0767 5685 10"
 };
 
-const FB_SVG    = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
-const FB_SVG_SM = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
+const CAT_ICON = {
+  "Idiomas":           { cls:"cat-idiomas",    fa:"fa-language" },
+  "Ciberseguridad":    { cls:"cat-cyber",      fa:"fa-shield-halved" },
+  "Ofimática":         { cls:"cat-ofimática",  fa:"fa-chart-pie" },
+  "Automotriz":        { cls:"cat-automotriz", fa:"fa-car-wrench" },
+  "Arte":              { cls:"cat-arte",       fa:"fa-pen-nib" },
+  "Finanzas":          { cls:"cat-finanzas",   fa:"fa-chart-line" },
+  "Edición":           { cls:"cat-edicion",    fa:"fa-film" },
+  "Paquete Especial":  { cls:"cat-paquete",    fa:"fa-boxes-stacked" },
+  "Programación":      { cls:"cat-programacion",fa:"fa-code" },
+};
+
+const MSN_ICON = `<i class="fab fa-facebook-messenger"></i>`;
 
 /* ============================================================
-   CURSOS
+   CURSOS DATA
 ============================================================ */
 const coursesData = [
-  {id:"idiomas",icon:"🌍",category:"Idiomas",title:"Curso de Idiomas",cardDesc:"Domina nuevas lenguas con métodos modernos. Inglés, francés, japonés y más.",tags:["Inglés","Conversación","Principiante a Avanzado"],accentColor:"#00f5ff",stock:true,desc:"Aprende a comunicarte en otros idiomas con materiales completos y estructurados. Desde pronunciación básica hasta conversación fluida.",topics:["Pronunciación y fonética básica","Vocabulario esencial y frases cotidianas","Gramática paso a paso con ejercicios","Conversación y expresión oral","Comprensión auditiva y lectora","Inglés, Francés, Japonés y más disponibles"],includes:[{icon:"📁",text:"Material descargable"},{icon:"🎧",text:"Audio y ejercicios"},{icon:"📋",text:"Guías de estudio"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"ingles",icon:"🇺🇸",category:"Idiomas",title:"Inglés sin Barreras",cardDesc:"Habla inglés con confianza desde el primer día. Método conversacional sin memorización.",tags:["Conversacional","Desde cero","Sin memorizar"],accentColor:"#3b82f6",stock:true,desc:"Un enfoque revolucionario para aprender inglés a través de contexto, situaciones reales y repetición espaciada.",topics:["Método natural de adquisición del idioma","Pronunciación americana y británica","Frases para situaciones reales","Conversaciones guiadas paso a paso","Escucha activa y comprensión auditiva","Niveles A1 hasta B2"],includes:[{icon:"🎧",text:"Audios con nativos"},{icon:"📖",text:"Guías de conversación"},{icon:"🎬",text:"Videos situacionales"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"hacking",icon:"🔐",category:"Ciberseguridad",title:"Hacking Ético",cardDesc:"Pentesting, vulnerabilidades y seguridad ofensiva-defensiva desde cero.",tags:["Pentesting","Kali Linux","Redes"],accentColor:"#ff6b35",stock:true,desc:"Aprende ciberseguridad ofensiva y defensiva de forma ética. Técnicas reales para proteger sistemas, redes y aplicaciones.",topics:["Fundamentos de redes y protocolos","Reconocimiento y escaneo de objetivos","Explotación de vulnerabilidades con Metasploit","Análisis de tráfico con Wireshark","Hacking web: SQLi, XSS, CSRF","Post-explotación y reportes"],includes:[{icon:"🖥️",text:"Labs virtuales"},{icon:"🛠️",text:"Herramientas Kali Linux"},{icon:"📄",text:"Guías PDF"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"excel",icon:"📊",category:"Ofimática",title:"Curso de Excel",cardDesc:"Desde cero hasta fórmulas avanzadas, tablas dinámicas, macros y dashboards.",tags:["Fórmulas","Tablas Dinámicas","Macros"],accentColor:"#00ff88",stock:true,desc:"Conviértete en experto de Excel: desde básico hasta macros y dashboards profesionales.",topics:["Interfaz y fundamentos","Fórmulas esenciales (SUMA, BUSCARV, SI)","Tablas dinámicas y gráficas","Formato condicional","Macros y VBA básico","Dashboards ejecutivos"],includes:[{icon:"📂",text:"Archivos de práctica"},{icon:"🎬",text:"Ejercicios paso a paso"},{icon:"📊",text:"Plantillas incluidas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"word",icon:"📝",category:"Ofimática",title:"Curso de Word",cardDesc:"Documentos profesionales con índices, plantillas y combinación de correspondencia.",tags:["Estilos","Plantillas","Correspondencia"],accentColor:"#7c3aed",stock:true,desc:"Crea documentos profesionales de alto impacto con índices automáticos, combinación de correspondencia y plantillas.",topics:["Formateo de texto y párrafos","Estilos y tabla de contenido automática","Imágenes, tablas y gráficos","Combinación de correspondencia","Plantillas profesionales","Control de cambios"],includes:[{icon:"📄",text:"Documentos de ejemplo"},{icon:"📋",text:"Plantillas listas"},{icon:"🎯",text:"Ejercicios prácticos"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"powerpoint",icon:"🎨",category:"Ofimática",title:"Curso de PowerPoint",cardDesc:"Presentaciones impactantes con animaciones y diseño visual profesional.",tags:["Animaciones","Diseño","Pro"],accentColor:"#f59e0b",stock:true,desc:"Diseña presentaciones que impresionan con animaciones, transiciones y storytelling.",topics:["Diseño de diapositivas","Tipografía y colores","Animaciones avanzadas","Multimedia (video, audio)","Infografías en PPT","Trucos de presentador"],includes:[{icon:"🖼️",text:"Plantillas diseñadas"},{icon:"✨",text:"Iconos y recursos"},{icon:"🎬",text:"Ejemplos animados"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"mecanica",icon:"🔧",category:"Automotriz",title:"Mecánica Automotriz",cardDesc:"Diagnóstico, mantenimiento preventivo, frenos y motor desde cero.",tags:["Motor","Frenos","OBD2"],accentColor:"#9ca3af",stock:true,desc:"Aprende a diagnosticar y reparar tu vehículo: desde cambio de aceite hasta fallas complejas de motor.",topics:["Herramientas de taller","Mantenimiento: aceite, filtros","Sistema de frenos","Motor: fallas y reparación básica","Suspensión y dirección","Diagnóstico OBD2","Transmisión","Cómo montar tu taller"],includes:[{icon:"🔧",text:"Manuales PDF"},{icon:"🎬",text:"Videos paso a paso"},{icon:"🚗",text:"Casos reales"},{icon:"🛠️",text:"Guías de herramientas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"caligrafia",icon:"✍️",category:"Arte",title:"Caligrafía",cardDesc:"Lettering moderno, brush pen y caligrafía clásica desde cero.",tags:["Lettering","Brush pen","Arte"],accentColor:"#ec4899",stock:true,desc:"Transforma tu escritura en arte con caligrafía clásica, lettering moderno y brush pen.",topics:["Herramientas esenciales","Presión, ángulo y fluidez","Copperplate clásica","Hand lettering moderno","Brush pen","Proyectos finales"],includes:[{icon:"📓",text:"Hojas de práctica"},{icon:"🖊️",text:"Guías de trazos"},{icon:"🎨",text:"Proyectos creativos"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"trading",icon:"📈",category:"Finanzas",title:"Trading",cardDesc:"Análisis técnico, gestión de riesgo y estrategias reales en mercados financieros.",tags:["Forex","Cripto","Análisis técnico"],accentColor:"#10b981",stock:true,desc:"Aprende a leer el mercado, identificar oportunidades y gestionar el riesgo en forex, criptos y acciones.",topics:["Mercado financiero","Velas japonesas","Soportes y resistencias","RSI, MACD, Medias","Gestión de riesgo","Estrategias para principiantes"],includes:[{icon:"📊",text:"Plantillas de análisis"},{icon:"📋",text:"Diario de trading"},{icon:"🎬",text:"Sesiones grabadas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"capcut",icon:"🎬",category:"Edición",title:"CapCut & Canva",cardDesc:"Edita videos virales y diseña contenido pro para redes desde tu celular.",tags:["CapCut","Canva","Reels"],accentColor:"#a855f7",stock:true,desc:"Con CapCut edita videos para TikTok y Reels. Con Canva crea posts, stories y logos de nivel profesional.",topics:["Herramientas de CapCut","Transiciones y efectos virales","Texto animado y música","Canva: plantillas y marca","Posts, stories y thumbnails","Exportación optimizada"],includes:[{icon:"📱",text:"Desde celular o PC"},{icon:"🎞️",text:"Plantillas"},{icon:"✨",text:"Pack de recursos"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"paquete",icon:"📦",category:"Paquete Especial",title:"Paquete a tu Medida",cardDesc:"Elige los cursos que quieras y arma tu paquete con precio especial.",tags:["Personalizado","Ahorra más","Tú eliges"],accentColor:"#f97316",stock:true,desc:"Selecciona 2 o más cursos y obtén precio especial combinado. Escríbenos indicando qué cursos te interesan.",topics:["Elige cualquier combinación","Precio especial por paquete","Acceso inmediato","Sin límite de cursos","Ideal para emprendedores","Soporte dedicado"],includes:[{icon:"📦",text:"Todos los elegidos"},{icon:"💰",text:"Precio especial"},{icon:"⚡",text:"Acceso inmediato"},{icon:"💬",text:"Soporte por Facebook"}],price:"¡Precio especial!"},
-  {id:"fullstack",icon:"🖥️",category:"Programación",title:"Programación Full Stack",cardDesc:"Domina el desarrollo web completo: frontend, backend, bases de datos y despliegue real.",tags:["Frontend","Backend","Bases de datos"],accentColor:"#06b6d4",stock:true,desc:"Conviértete en desarrollador Full Stack desde cero. Aprende a construir aplicaciones web completas dominando el frontend, backend, bases de datos SQL y NoSQL, y el despliegue en servidores reales.",topics:["HTML, CSS y JavaScript desde cero","React para el frontend","Node.js y Express para el backend","Bases de datos: MySQL y MongoDB","APIs REST: creación y consumo","Autenticación con JWT","Despliegue en la nube (Vercel, Railway)","Proyecto final: app web completa"],includes:[{icon:"💻",text:"Proyectos reales completos"},{icon:"🗄️",text:"Base de datos incluida"},{icon:"🚀",text:"Despliegue en producción"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
-  {id:"kalilinux",icon:"🐉",category:"Ciberseguridad",title:"Uso de Kali Linux",cardDesc:"Domina el SO favorito de los hackers éticos: herramientas, comandos y flujos de trabajo reales.",tags:["Kali Linux","Terminal","Hacking"],accentColor:"#4f46e5",stock:true,desc:"Kali Linux es el sistema operativo más poderoso para ciberseguridad. Aprende a instalarlo, configurarlo y dominar sus +600 herramientas especializadas para pentesting, análisis forense y hacking ético.",topics:["Instalación y configuración de Kali Linux","Comandos esenciales de la terminal Linux","Gestión de herramientas y repositorios","Nmap: escaneo de redes y puertos","Metasploit Framework: explotación real","Aircrack-ng: auditoría de redes WiFi","Burp Suite: análisis de tráfico web","Análisis forense básico con Kali"],includes:[{icon:"🐉",text:"Guía de instalación paso a paso"},{icon:"⚙️",text:"Cheatsheets de comandos"},{icon:"🛠️",text:"+20 herramientas explicadas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"}
+  {id:"idiomas",category:"Idiomas",title:"Curso de Idiomas",cardDesc:"Domina nuevas lenguas con métodos modernos. Inglés, francés, japonés y más.",tags:["Inglés","Conversación","Principiante a Avanzado"],accentColor:"#00ff88",stock:true,desc:"Aprende a comunicarte en otros idiomas con materiales completos y estructurados. Desde pronunciación básica hasta conversación fluida.",topics:["Pronunciación y fonética básica","Vocabulario esencial y frases cotidianas","Gramática paso a paso con ejercicios","Conversación y expresión oral","Comprensión auditiva y lectora","Inglés, Francés, Japonés y más disponibles"],includes:[{icon:"📁",text:"Material descargable"},{icon:"🎧",text:"Audio y ejercicios"},{icon:"📋",text:"Guías de estudio"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"ingles",category:"Idiomas",title:"Inglés sin Barreras",cardDesc:"Habla inglés con confianza desde el primer día. Método conversacional sin memorización.",tags:["Conversacional","Desde cero","Sin memorizar"],accentColor:"#3b82f6",stock:true,desc:"Un enfoque revolucionario para aprender inglés a través de contexto, situaciones reales y repetición espaciada.",topics:["Método natural de adquisición del idioma","Pronunciación americana y británica","Frases para situaciones reales","Conversaciones guiadas paso a paso","Escucha activa y comprensión auditiva","Niveles A1 hasta B2"],includes:[{icon:"🎧",text:"Audios con nativos"},{icon:"📖",text:"Guías de conversación"},{icon:"🎬",text:"Videos situacionales"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"hacking",category:"Ciberseguridad",title:"Hacking Ético",cardDesc:"Pentesting, vulnerabilidades y seguridad ofensiva-defensiva desde cero.",tags:["Pentesting","Kali Linux","Redes"],accentColor:"#ff6b35",stock:true,desc:"Aprende ciberseguridad ofensiva y defensiva de forma ética. Técnicas reales para proteger sistemas, redes y aplicaciones.",topics:["Fundamentos de redes y protocolos","Reconocimiento y escaneo de objetivos","Explotación de vulnerabilidades con Metasploit","Análisis de tráfico con Wireshark","Hacking web: SQLi, XSS, CSRF","Post-explotación y reportes"],includes:[{icon:"🖥️",text:"Labs virtuales"},{icon:"🛠️",text:"Herramientas Kali Linux"},{icon:"📄",text:"Guías PDF"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"excel",category:"Ofimática",title:"Curso de Excel",cardDesc:"Desde cero hasta fórmulas avanzadas, tablas dinámicas, macros y dashboards.",tags:["Fórmulas","Tablas Dinámicas","Macros"],accentColor:"#00ff88",stock:true,desc:"Conviértete en experto de Excel: desde básico hasta macros y dashboards profesionales.",topics:["Interfaz y fundamentos","Fórmulas esenciales (SUMA, BUSCARV, SI)","Tablas dinámicas y gráficas","Formato condicional","Macros y VBA básico","Dashboards ejecutivos"],includes:[{icon:"📂",text:"Archivos de práctica"},{icon:"🎬",text:"Ejercicios paso a paso"},{icon:"📊",text:"Plantillas incluidas"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"word",category:"Ofimática",title:"Curso de Word",cardDesc:"Documentos profesionales con índices, plantillas y combinación de correspondencia.",tags:["Estilos","Plantillas","Correspondencia"],accentColor:"#7c3aed",stock:true,desc:"Crea documentos profesionales de alto impacto con índices automáticos, combinación de correspondencia y plantillas.",topics:["Formateo de texto y párrafos","Estilos y tabla de contenido automática","Imágenes, tablas y gráficos","Combinación de correspondencia","Plantillas profesionales","Control de cambios"],includes:[{icon:"📄",text:"Documentos de ejemplo"},{icon:"📋",text:"Plantillas listas"},{icon:"🎯",text:"Ejercicios prácticos"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"powerpoint",category:"Ofimática",title:"Curso de PowerPoint",cardDesc:"Presentaciones impactantes con animaciones y diseño visual profesional.",tags:["Animaciones","Diseño","Pro"],accentColor:"#f59e0b",stock:true,desc:"Diseña presentaciones que impresionan con animaciones, transiciones y storytelling.",topics:["Diseño de diapositivas","Tipografía y colores","Animaciones avanzadas","Multimedia (video, audio)","Infografías en PPT","Trucos de presentador"],includes:[{icon:"🖼️",text:"Plantillas diseñadas"},{icon:"✨",text:"Iconos y recursos"},{icon:"🎬",text:"Ejemplos animados"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"mecanica",category:"Automotriz",title:"Mecánica Automotriz",cardDesc:"Diagnóstico, mantenimiento preventivo, frenos y motor desde cero.",tags:["Motor","Frenos","OBD2"],accentColor:"#9ca3af",stock:true,desc:"Aprende a diagnosticar y reparar tu vehículo: desde cambio de aceite hasta fallas complejas de motor.",topics:["Herramientas de taller","Mantenimiento: aceite, filtros","Sistema de frenos","Motor: fallas y reparación básica","Suspensión y dirección","Diagnóstico OBD2","Transmisión","Cómo montar tu taller"],includes:[{icon:"🔧",text:"Manuales PDF"},{icon:"🎬",text:"Videos paso a paso"},{icon:"🚗",text:"Casos reales"},{icon:"🛠️",text:"Guías de herramientas"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"caligrafia",category:"Arte",title:"Caligrafía",cardDesc:"Lettering moderno, brush pen y caligrafía clásica desde cero.",tags:["Lettering","Brush pen","Arte"],accentColor:"#ec4899",stock:true,desc:"Transforma tu escritura en arte con caligrafía clásica, lettering moderno y brush pen.",topics:["Herramientas esenciales","Presión, ángulo y fluidez","Copperplate clásica","Hand lettering moderno","Brush pen","Proyectos finales"],includes:[{icon:"📓",text:"Hojas de práctica"},{icon:"🖊️",text:"Guías de trazos"},{icon:"🎨",text:"Proyectos creativos"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"trading",category:"Finanzas",title:"Trading",cardDesc:"Análisis técnico, gestión de riesgo y estrategias reales en mercados financieros.",tags:["Forex","Cripto","Análisis técnico"],accentColor:"#10b981",stock:true,desc:"Aprende a leer el mercado, identificar oportunidades y gestionar el riesgo en forex, criptos y acciones.",topics:["Mercado financiero","Velas japonesas","Soportes y resistencias","RSI, MACD, Medias","Gestión de riesgo","Estrategias para principiantes"],includes:[{icon:"📊",text:"Plantillas de análisis"},{icon:"📋",text:"Diario de trading"},{icon:"🎬",text:"Sesiones grabadas"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"capcut",category:"Edición",title:"CapCut & Canva",cardDesc:"Edita videos virales y diseña contenido pro para redes desde tu celular.",tags:["CapCut","Canva","Reels"],accentColor:"#a855f7",stock:true,desc:"Con CapCut edita videos para TikTok y Reels. Con Canva crea posts, stories y logos de nivel profesional.",topics:["Herramientas de CapCut","Transiciones y efectos virales","Texto animado y música","Canva: plantillas y marca","Posts, stories y thumbnails","Exportación optimizada"],includes:[{icon:"📱",text:"Desde celular o PC"},{icon:"🎞️",text:"Plantillas"},{icon:"✨",text:"Pack de recursos"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"paquete",category:"Paquete Especial",title:"Paquete a tu Medida",cardDesc:"Elige los cursos que quieras y arma tu paquete con precio especial.",tags:["Personalizado","Ahorra más","Tú eliges"],accentColor:"#f97316",stock:true,desc:"Selecciona 2 o más cursos y obtén precio especial combinado. Escríbenos indicando qué cursos te interesan.",topics:["Elige cualquier combinación","Precio especial por paquete","Acceso inmediato","Sin límite de cursos","Ideal para emprendedores","Soporte dedicado"],includes:[{icon:"📦",text:"Todos los elegidos"},{icon:"💰",text:"Precio especial"},{icon:"⚡",text:"Acceso inmediato"},{icon:"💬",text:"Soporte por Messenger"}],price:"¡Precio especial!",priceNum:0},
+  {id:"fullstack",category:"Programación",title:"Programación Full Stack",cardDesc:"Domina el desarrollo web completo: frontend, backend, bases de datos y despliegue real.",tags:["Frontend","Backend","Bases de datos"],accentColor:"#06b6d4",stock:true,desc:"Conviértete en desarrollador Full Stack desde cero. Aprende a construir aplicaciones web completas dominando el frontend, backend, bases de datos SQL y NoSQL, y el despliegue en servidores reales.",topics:["HTML, CSS y JavaScript desde cero","React para el frontend","Node.js y Express para el backend","Bases de datos: MySQL y MongoDB","APIs REST: creación y consumo","Autenticación con JWT","Despliegue en la nube (Vercel, Railway)","Proyecto final: app web completa"],includes:[{icon:"💻",text:"Proyectos reales completos"},{icon:"🗄️",text:"Base de datos incluida"},{icon:"🚀",text:"Despliegue en producción"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99},
+  {id:"kalilinux",category:"Ciberseguridad",title:"Uso de Kali Linux",cardDesc:"Domina el SO favorito de los hackers éticos: herramientas, comandos y flujos de trabajo reales.",tags:["Kali Linux","Terminal","Hacking"],accentColor:"#4f46e5",stock:true,desc:"Kali Linux es el sistema operativo más poderoso para ciberseguridad. Aprende a instalarlo, configurarlo y dominar sus +600 herramientas especializadas para pentesting, análisis forense y hacking ético.",topics:["Instalación y configuración de Kali Linux","Comandos esenciales de la terminal Linux","Gestión de herramientas y repositorios","Nmap: escaneo de redes y puertos","Metasploit Framework: explotación real","Aircrack-ng: auditoría de redes WiFi","Burp Suite: análisis de tráfico web","Análisis forense básico con Kali"],includes:[{icon:"🐉",text:"Guía de instalación paso a paso"},{icon:"⚙️",text:"Cheatsheets de comandos"},{icon:"🛠️",text:"+20 herramientas explicadas"},{icon:"💬",text:"Soporte por Messenger"}],price:"$99 MXN",priceNum:99}
 ];
 
 /* ============================================================
-   ESTADO
+   ESTADO GLOBAL
 ============================================================ */
 let ownerMode = false, curCourseId = null, rvImgFile = null, cardUploadId = null;
 const imgCache = {};
+
+// Cart: array de ids de cursos
+let cart = [];
 
 function getDeviceId(){
   let d=localStorage.getItem('did');
   if(!d){d='d'+Date.now()+Math.random().toString(36).substr(2,8);localStorage.setItem('did',d);}
   return d;
+}
+function getCatIcon(category){
+  return CAT_ICON[category]||{cls:'cat-programacion',fa:'fa-graduation-cap'};
+}
+
+/* ============================================================
+   CART LOGIC
+============================================================ */
+function addToCart(courseId){
+  const c=coursesData.find(x=>x.id===courseId);
+  if(!c||!c.stock)return;
+  if(c.priceNum===0){contactMessenger(c.title);return;}
+  if(cart.includes(courseId)){
+    removeFromCart(courseId);return;
+  }
+  cart.push(courseId);
+  updateCartUI();
+  showToast('✅ '+c.title+' añadido al carrito','ok');
+  // animate badge
+  const badge=document.getElementById('cartBadge');
+  badge.classList.remove('pop');
+  void badge.offsetWidth;
+  badge.classList.add('pop');
+}
+function removeFromCart(courseId){
+  cart=cart.filter(id=>id!==courseId);
+  updateCartUI();
+  renderCartItems();
+}
+function updateCartUI(){
+  const n=cart.length;
+  document.getElementById('cartBadge').textContent=n;
+  // update all add-to-cart buttons
+  document.querySelectorAll('[data-cart-id]').forEach(btn=>{
+    const id=btn.dataset.cartId;
+    if(cart.includes(id)){
+      btn.classList.add('in-cart');
+      btn.innerHTML='<i class="fas fa-check"></i> En carrito';
+    }else{
+      btn.classList.remove('in-cart');
+      btn.innerHTML='🛒 Agregar';
+    }
+  });
+}
+function getCartTotal(){
+  return cart.reduce((sum,id)=>{
+    const c=coursesData.find(x=>x.id===id);
+    return sum+(c?c.priceNum:0);
+  },0);
+}
+
+/* ============================================================
+   CHECKOUT MODAL
+============================================================ */
+function openCheckout(){
+  renderCartItems();
+  document.getElementById('checkoutOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+  document.getElementById('coSuccess').classList.remove('active');
+  document.getElementById('coMain').style.display='block';
+  document.getElementById('coTransfer').classList.remove('active');
+}
+function closeCheckout(){
+  document.getElementById('checkoutOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+function closeCheckoutOut(e){
+  if(e.target===document.getElementById('checkoutOverlay'))closeCheckout();
+}
+function renderCartItems(){
+  const list=document.getElementById('coList');
+  const empty=document.getElementById('coEmpty');
+  const totalRow=document.getElementById('coTotalRow');
+  const method=document.getElementById('coMethod');
+  if(cart.length===0){
+    list.innerHTML='';
+    if(!empty){
+      const d=document.createElement('div');d.className='co-empty';d.id='coEmpty';
+      d.textContent='Tu carrito está vacío. Agrega cursos desde el catálogo 👆';
+      list.appendChild(d);
+    }else{empty.style.display='block';}
+    totalRow.style.display='none';
+    method.style.display='none';
+    return;
+  }
+  if(empty)empty.style.display='none';
+  list.innerHTML=cart.map(id=>{
+    const c=coursesData.find(x=>x.id===id);if(!c)return'';
+    return`<div class="co-course-item">
+      <span class="co-course-name">${esc(c.title)}</span>
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <span class="co-course-price">$${c.priceNum} MXN</span>
+        <button class="co-course-rm" onclick="removeFromCart('${id}')" title="Quitar">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('coTotalAmt').textContent='$'+getCartTotal()+' MXN';
+  totalRow.style.display='flex';
+  method.style.display='block';
+}
+function showTransfer(){
+  document.getElementById('coTransfer').classList.add('active');
+  setTimeout(()=>{
+    document.getElementById('coTransfer').scrollIntoView({behavior:'smooth',block:'nearest'});
+  },100);
+}
+function copyClabe(){
+  navigator.clipboard.writeText(CONFIG.clabe).then(()=>{
+    showToast('📋 CLABE copiada al portapapeles','ok');
+  }).catch(()=>{
+    showToast('CLABE: '+CONFIG.clabeDisplay,'');
+  });
+}
+function contactMessengerCart(){
+  const names=cart.map(id=>{const c=coursesData.find(x=>x.id===id);return c?c.title:'';}).filter(Boolean);
+  window.open(CONFIG.messenger,'_blank');
+}
+
+/* ============================================================
+   CONFIRMAR PEDIDO → SUPABASE INSERT en tabla "pedidos"
+============================================================ */
+async function confirmarPedido(){
+  const nombre=document.getElementById('cfNombre').value.trim();
+  const gmail=document.getElementById('cfGmail').value.trim();
+  const wa=document.getElementById('cfWa').value.trim();
+
+  if(!nombre){showToast('Ingresa tu nombre completo','err');return;}
+  if(!gmail||!gmail.includes('@')){showToast('Ingresa un Gmail válido','err');return;}
+  if(cart.length===0){showToast('Tu carrito está vacío','err');return;}
+
+  const btn=document.getElementById('btnConfirmar');
+  btn.disabled=true;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+  const cursosComprados=cart.map(id=>{
+    const c=coursesData.find(x=>x.id===id);return c?c.title:'';
+  }).filter(Boolean).join(', ');
+
+  const total=getCartTotal();
+
+  try{
+    const{error}=await sb.from('pedidos').insert({
+      nombre_cliente: nombre,
+      gmail:          gmail,
+      whatsapp:       wa||null,
+      cursos_comprados: cursosComprados,
+      monto_total:    total
+    });
+    if(error)throw error;
+
+    // Éxito
+    document.getElementById('coMain').style.display='none';
+    document.getElementById('coSuccess').classList.add('active');
+
+    // Limpiar carrito
+    cart=[];
+    updateCartUI();
+
+    // Limpiar form
+    document.getElementById('cfNombre').value='';
+    document.getElementById('cfGmail').value='';
+    document.getElementById('cfWa').value='';
+
+    showToast('🎉 ¡Pedido registrado exitosamente!','ok');
+  }catch(err){
+    console.error('Error Supabase:',err);
+    showToast('Error al enviar: '+(err.message||'intenta de nuevo'),'err');
+    btn.disabled=false;
+    btn.innerHTML='<i class="fas fa-check-circle"></i> Confirmar Pago y Enviar Datos';
+  }
 }
 
 /* ============================================================
@@ -665,21 +1148,12 @@ async function updateReviewVotes(id,likes,dislikes){await sb.from('reviews').upd
 function applyBannerImg(url){
   const bg=document.getElementById('bannerBg');
   const hint=document.getElementById('bannerEmptyHint');
-  if(url){
-    bg.style.backgroundImage=`url('${url}')`;
-    bg.classList.add('has-img');
-    hint.style.display='none';
-  } else {
-    bg.style.backgroundImage='';
-    bg.classList.remove('has-img');
-    hint.style.display='block';
-  }
+  if(url){bg.style.backgroundImage=`url('${url}')`;bg.classList.add('has-img');hint.style.display='none';}
+  else{bg.style.backgroundImage='';bg.classList.remove('has-img');hint.style.display='block';}
 }
 async function loadBannerImg(){
-  try{
-    const{data}=await sb.from('course_images').select('image_url').eq('course_id','__banner__').single();
-    applyBannerImg(data?.image_url||null);
-  }catch(e){applyBannerImg(null);}
+  try{const{data}=await sb.from('course_images').select('image_url').eq('course_id','__banner__').single();applyBannerImg(data?.image_url||null);}
+  catch(e){applyBannerImg(null);}
 }
 async function uploadBannerImg(e){
   if(!ownerMode){showToast('Debes ser admin','err');return;}
@@ -706,6 +1180,9 @@ function renderCards(){
   coursesData.forEach(c=>{
     const imgUrl=imgCache[c.id]||null;
     const oos=!c.stock;
+    const ci=getCatIcon(c.category);
+    const isSpecial=c.price==='¡Precio especial!';
+    const inCart=cart.includes(c.id);
     const el=document.createElement('div');
     el.className='course-card reveal'+(oos?' oos':'');
     el.style.setProperty('--card-accent',c.accentColor);
@@ -714,7 +1191,7 @@ function renderCards(){
       <div class="card-corner tl"></div><div class="card-corner tr"></div>
       <div class="card-corner bl"></div><div class="card-corner br"></div>
       <div class="card-head">
-        <div class="card-icon-wrap">${c.icon}</div>
+        <div class="card-icon-wrap ${ci.cls}"><i class="fas ${ci.fa}"></i></div>
         <div class="card-meta">
           <div class="card-cat">${c.category}</div>
           <div class="card-ttl">${c.title}</div>
@@ -729,12 +1206,22 @@ function renderCards(){
         <div class="card-tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
       </div>
       <div class="card-foot">
-        <div class="card-price">${oos?`<span style="color:var(--pink)">SIN STOCK</span>`:'$99 MXN'}<span>${oos?'Avísame cuando haya':'Precio: $99 MXN'}</span></div>
+        <div class="card-price">
+          ${oos
+            ?`<span style="color:var(--pink);font-family:var(--font-d);font-size:1.1rem">SIN STOCK</span><span class="price-note">Avísame cuando haya</span>`
+            :isSpecial
+              ?`<span class="price-main" style="font-size:1rem">¡Precio especial!</span><span class="price-badge">🎁 Tú lo eliges</span>`
+              :`<span class="price-anchor">Precio regular: $399 MXN</span><span class="price-main">$99 MXN</span><span class="price-badge">🔥 Oferta de Lanzamiento</span>`
+          }
+        </div>
         <div class="card-acts">
           <button class="btn-detail" onclick="openModal('${c.id}')">Detalle</button>
           ${oos
-            ?`<span class="btn-fb-dis">⛔ No disp.</span>`
-            :`<button class="btn-fb" onclick="contactFB('${c.title}')">${FB_SVG_SM} Cotizar</button>`}
+            ?`<span class="btn-msn-dis">⛔ No disp.</span>`
+            :isSpecial
+              ?`<button class="btn-msn" onclick="contactMessenger('${c.title}')">${MSN_ICON} Consultar</button>`
+              :`<button class="btn-add-cart ${inCart?'in-cart':''}" data-cart-id="${c.id}" onclick="addToCart('${c.id}')">${inCart?'<i class="fas fa-check"></i> En carrito':'🛒 Agregar'}</button>`
+          }
         </div>
       </div>`;
     grid.appendChild(el);
@@ -743,7 +1230,7 @@ function renderCards(){
 }
 
 /* ============================================================
-   MODAL
+   MODAL (detalle de curso)
 ============================================================ */
 async function openModal(id){
   const d=coursesData.find(c=>c.id===id);if(!d)return;
@@ -753,18 +1240,31 @@ async function openModal(id){
   document.body.style.overflow='hidden';
   document.getElementById('modalLoading').style.display='flex';
   document.getElementById('modalContent').style.display='none';
-  document.getElementById('mIcon').textContent=d.icon;
+
+  const ci=getCatIcon(d.category);
+  document.getElementById('mIcon').innerHTML=`<i class="fas ${ci.fa} ${ci.cls}"></i>`;
   document.getElementById('mCat').textContent=d.category;
   document.getElementById('mTtl').textContent=d.title;
   document.getElementById('mDesc').textContent=d.desc;
+
+  const isSpecial=d.price==='¡Precio especial!';
+  document.getElementById('mPriceAnchor').style.display=isSpecial?'none':'block';
+  document.getElementById('mPriceBadge').style.display=isSpecial?'none':'block';
   document.getElementById('mPrice').textContent=d.price;
+
   document.getElementById('mTopics').innerHTML=d.topics.map(t=>`<div class="modal-topic">${t}</div>`).join('');
   document.getElementById('mIncludes').innerHTML=d.includes.map(i=>`<div class="inc-item"><span class="inc-icon">${i.icon}</span>${i.text}</div>`).join('');
   const noStock=!d.stock;
   document.getElementById('mNoStock').style.display=noStock?'block':'none';
   document.getElementById('mTgWrap').innerHTML=noStock
     ?`<span class="btn-cotizar-dis">⛔ SIN STOCK</span>`
-    :`<button class="btn-cotizar-fb" onclick="contactFB('${d.title}')">${FB_SVG} Contactar por Facebook</button>`;
+    :isSpecial
+      ?`<button class="btn-cotizar-msn" onclick="contactMessenger('${d.title}')"><i class="fab fa-facebook-messenger"></i> Consultar por Messenger</button>`
+      :`<div style="display:flex;flex-direction:column;gap:0.5rem">
+          <button class="btn-cotizar-msn" onclick="addToCart('${d.id}');closeModal()" id="modalCartBtn" style="background:linear-gradient(135deg,var(--pink),#c026d3)"><i class="fas fa-shopping-cart"></i> ${cart.includes(d.id)?'Quitar del carrito':'Agregar al carrito'}</button>
+          <button class="btn-cotizar-msn" onclick="contactMessenger('${d.title}')"><i class="fab fa-facebook-messenger"></i> Comprar por Messenger</button>
+        </div>`;
+
   resetRvForm();
   try{
     const[imgUrl,reviews]=await Promise.all([
@@ -795,7 +1295,7 @@ async function fetchSingleImg(courseId){
 }
 function closeModalOut(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow='';curCourseId=null;}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeLightbox();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeLightbox();closeCheckout();}});
 
 /* ============================================================
    LIGHTBOX
@@ -956,15 +1456,15 @@ function logout(){
 }
 
 /* ============================================================
-   FACEBOOK
+   MESSENGER
 ============================================================ */
-function contactFB(name){window.open(CONFIG.facebook,'_blank');}
+function contactMessenger(name){window.open(CONFIG.messenger,'_blank');}
 
 /* ============================================================
    UTILS
 ============================================================ */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>{t.className='toast';},3000);}
+function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>{t.className='toast';},3200);}
 function animCounter(el,target,dur=2000){let s=0;const step=target/(dur/16);const t=setInterval(()=>{s+=step;if(s>=target){el.textContent=target+(target===24?'/7':'+');clearInterval(t);}else{el.textContent=Math.floor(s)+(target===24?'/7':'+');}},16);}
 
 /* ============================================================
@@ -1004,12 +1504,11 @@ window.addEventListener('scroll',()=>{const h=document.querySelector('.hero');if
    INIT
 ============================================================ */
 (async()=>{
-  document.getElementById('bannerTitle').innerHTML=CONFIG.bannerTitle;
-  document.getElementById('bannerSub').textContent=CONFIG.bannerSub;
   await Promise.all([fetchAllCourseImgs(),loadBannerImg()]);
   renderCards();
   document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
   document.querySelectorAll('[data-target]').forEach(el=>cntObs.observe(el));
+  updateCartUI();
 })();
 </script>
 </body>
