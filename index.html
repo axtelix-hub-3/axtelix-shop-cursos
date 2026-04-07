@@ -8,24 +8,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #020510;
-      --bg2: #080f1e;
-      --bg3: #0a1628;
-      --cyan: #00f5ff;
-      --purple: #7c3aed;
-      --pink: #ff2d78;
-      --green: #00ff88;
-      --orange: #ff6b35;
-      --yellow: #ffd700;
-      --text: #e2e8f0;
-      --muted: #4a5568;
-      --font-d: 'Orbitron', monospace;
-      --font-b: 'Rajdhani', sans-serif;
-      --font-m: 'Share Tech Mono', monospace;
-      --r: 12px;
-      --t: 0.3s cubic-bezier(0.4,0,0.2,1);
-      --glow-c: 0 0 20px rgba(0,245,255,0.5);
-      --glow-p: 0 0 20px rgba(124,58,237,0.5);
+      --bg:#020510;--bg2:#080f1e;--bg3:#0a1628;
+      --cyan:#00f5ff;--purple:#7c3aed;--pink:#ff2d78;
+      --green:#00ff88;--orange:#ff6b35;--text:#e2e8f0;--muted:#4a5568;
+      --tg:#1877F2;--tg2:#145dbf;
+      --font-d:'Orbitron',monospace;--font-b:'Rajdhani',sans-serif;--font-m:'Share Tech Mono',monospace;
+      --r:12px;--t:0.3s cubic-bezier(0.4,0,0.2,1);
+      --glow-c:0 0 20px rgba(0,245,255,0.5);--glow-p:0 0 20px rgba(124,58,237,0.5);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
@@ -34,7 +23,6 @@
     img{max-width:100%;display:block}
     button{cursor:pointer;border:none;outline:none;font-family:inherit}
 
-    /* CANVAS + OVERLAYS */
     #bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
     .grid-overlay{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,245,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
     .scanline{position:fixed;inset:0;z-index:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;animation:scanmove 8s linear infinite}
@@ -86,6 +74,32 @@
     @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
     @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
+    /* BANNER SECTION */
+    .banner-section{max-width:1200px;margin:0 auto;padding:0 1.5rem 4rem;position:relative;}
+    .banner-inner{position:relative;border-radius:20px;overflow:hidden;border:1px solid rgba(0,245,255,0.15);background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(8,15,30,0.98));min-height:280px;display:flex;align-items:center;}
+    .banner-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity 0.5s ease;}
+    .banner-bg.has-img{opacity:1;}
+    .banner-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,5,16,0.88) 0%,rgba(2,5,16,0.6) 55%,rgba(2,5,16,0.2) 100%);}
+    .banner-content{position:relative;z-index:2;padding:2.5rem 3rem;max-width:600px;}
+    .banner-label{font-family:var(--font-m);font-size:0.65rem;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;margin-bottom:0.7rem;display:flex;align-items:center;gap:0.5rem;}
+    .banner-label::before{content:'';width:20px;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+    .banner-title{font-family:var(--font-d);font-size:clamp(1.4rem,3.5vw,2.4rem);font-weight:900;line-height:1.1;margin-bottom:0.8rem;color:var(--text);}
+    .banner-title span{background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .banner-sub{font-size:1rem;color:var(--muted);margin-bottom:1.8rem;line-height:1.6;max-width:440px;}
+    .banner-btn{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-family:var(--font-d);font-size:0.65rem;font-weight:700;letter-spacing:2px;padding:0.8rem 2rem;border-radius:4px;transition:var(--t);text-transform:uppercase;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 0 20px rgba(0,245,255,0.25);position:relative;overflow:hidden;}
+    .banner-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.15);transform:translateX(-100%) skewX(-15deg);transition:0.5s}
+    .banner-btn:hover::before{transform:translateX(150%) skewX(-15deg)}
+    .banner-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,245,255,0.45)}
+    .banner-empty-hint{position:absolute;top:50%;right:2rem;transform:translateY(-50%);font-family:var(--font-m);font-size:0.6rem;letter-spacing:2px;color:rgba(0,245,255,0.25);text-align:center;line-height:1.8;}
+    .banner-upload-btn{display:none;position:absolute;top:1rem;left:1rem;z-index:10;background:rgba(0,245,255,0.08);border:1px dashed rgba(0,245,255,0.4);color:var(--cyan);font-family:var(--font-m);font-size:0.6rem;letter-spacing:1px;padding:0.4rem 0.9rem;border-radius:5px;transition:var(--t);backdrop-filter:blur(4px);}
+    .banner-upload-btn:hover{background:rgba(0,245,255,0.15)}
+    body.owner-mode .banner-upload-btn{display:block}
+    .banner-corner{position:absolute;width:20px;height:20px;z-index:3}
+    .banner-corner.tl{top:0;left:0;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
+    .banner-corner.tr{top:0;right:0;border-top:2px solid var(--purple);border-right:2px solid var(--purple)}
+    .banner-corner.bl{bottom:0;left:0;border-bottom:2px solid rgba(0,245,255,0.4);border-left:2px solid rgba(0,245,255,0.4)}
+    .banner-corner.br{bottom:0;right:0;border-bottom:2px solid rgba(124,58,237,0.4);border-right:2px solid rgba(124,58,237,0.4)}
+
     /* TICKER */
     .ticker-wrap{overflow:hidden;border-top:1px solid rgba(0,245,255,0.1);border-bottom:1px solid rgba(0,245,255,0.1);padding:0.7rem 0;background:linear-gradient(90deg,rgba(0,245,255,0.03),rgba(124,58,237,0.03))}
     .ticker-track{display:flex;gap:3rem;white-space:nowrap;animation:tick 28s linear infinite}
@@ -93,7 +107,7 @@
     .ticker-item span{color:var(--cyan)}
     @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-    /* SECTION BASE */
+    /* SECTIONS */
     section{padding:5rem 1.5rem;max-width:1200px;margin:0 auto}
     .sec-lbl{font-family:var(--font-m);font-size:0.7rem;letter-spacing:5px;color:var(--cyan);text-transform:uppercase;margin-bottom:0.5rem}
     .sec-title{font-family:var(--font-d);font-size:clamp(1.8rem,4vw,3rem);font-weight:900;margin-bottom:1rem}
@@ -110,82 +124,49 @@
 
     /* COURSES GRID */
     .courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.8rem}
-
-    /* ===================== CARD — Glow elegante (sin tilt) ===================== */
-    .course-card{
-      background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(8,15,30,0.98));
-      border:1px solid rgba(0,245,255,0.1);
-      border-radius:var(--r);
-      overflow:hidden;
-      position:relative;
-      display:flex;
-      flex-direction:column;
-      transition:border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
-    }
-    /* Línea superior accent */
-    .course-card::before{
-      content:'';position:absolute;top:0;left:0;right:0;height:2px;
-      background:linear-gradient(90deg,transparent,var(--card-accent,var(--cyan)),transparent);
-      opacity:0;transition:opacity 0.35s ease;
-    }
-    /* Glow interno al hover */
-    .course-card:not(.oos):hover{
-      border-color:rgba(0,245,255,0.35);
-      box-shadow:0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,245,255,0.08), 0 0 40px -8px var(--card-accent,var(--cyan));
-      transform:translateY(-4px);
-    }
+    .course-card{background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(8,15,30,0.98));border:1px solid rgba(0,245,255,0.1);border-radius:var(--r);overflow:hidden;position:relative;display:flex;flex-direction:column;transition:border-color 0.35s ease,box-shadow 0.35s ease,transform 0.35s ease}
+    .course-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--card-accent,var(--cyan)),transparent);opacity:0;transition:opacity 0.35s ease}
+    .course-card:not(.oos):hover{border-color:rgba(0,245,255,0.35);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(0,245,255,0.08),0 0 40px -8px var(--card-accent,var(--cyan));transform:translateY(-4px)}
     .course-card:not(.oos):hover::before{opacity:1}
     .course-card.oos{opacity:0.55}
     .course-card.oos .card-foot{pointer-events:none}
-
-    /* Card corner decorations */
     .card-corner{position:absolute;width:14px;height:14px;z-index:3;transition:opacity 0.3s}
     .card-corner.tl{top:0;left:0;border-top:2px solid var(--card-accent,var(--cyan));border-left:2px solid var(--card-accent,var(--cyan));opacity:0.4}
     .card-corner.tr{top:0;right:0;border-top:2px solid var(--card-accent,var(--cyan));border-right:2px solid var(--card-accent,var(--cyan));opacity:0.4}
     .card-corner.bl{bottom:0;left:0;border-bottom:2px solid var(--card-accent,var(--cyan));border-left:2px solid var(--card-accent,var(--cyan));opacity:0.4}
     .card-corner.br{bottom:0;right:0;border-bottom:2px solid var(--card-accent,var(--cyan));border-right:2px solid var(--card-accent,var(--cyan));opacity:0.4}
     .course-card:hover .card-corner{opacity:1}
-
     .card-head{padding:1.8rem 1.6rem 1rem;display:flex;align-items:flex-start;gap:1rem}
     .card-icon-wrap{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0;background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.15);position:relative;overflow:hidden}
     .card-icon-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,255,0.1),transparent);pointer-events:none}
     .card-meta{flex:1}
     .card-cat{font-family:var(--font-m);font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--card-accent,var(--cyan));margin-bottom:0.3rem}
     .card-ttl{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--text);line-height:1.3}
-
-    /* Card preview */
     .card-prev{margin:0 1.6rem 0.8rem;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);position:relative;min-height:55px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;cursor:pointer}
     .card-prev img{width:100%;height:130px;object-fit:cover;display:block;transition:transform 0.4s ease}
     .card-prev:hover img{transform:scale(1.04)}
     .card-prev-empty{color:var(--muted);font-size:0.65rem;font-family:var(--font-m);letter-spacing:2px;padding:1rem;text-align:center}
-    .card-prev-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-family:var(--font-m);font-size:0.5rem;letter-spacing:3px;color:var(--cyan);padding:0.5rem;text-align:center;text-shadow:0 0 8px var(--cyan)}
-    .card-prev-zoom{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border:1px solid rgba(0,245,255,0.4);color:var(--cyan);font-size:1.2rem;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:var(--t);backdrop-filter:blur(4px)}
+    .card-prev-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-family:var(--font-m);font-size:0.5rem;letter-spacing:3px;color:var(--cyan);padding:0.5rem;text-align:center}
+    .card-prev-zoom{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border:1px solid rgba(0,245,255,0.4);color:var(--cyan);font-size:1.2rem;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:var(--t)}
     .card-prev:hover .card-prev-zoom{opacity:1}
-
     .card-upload-btn{display:none;margin:0 1.6rem 0.7rem;background:rgba(0,245,255,0.05);border:1px dashed rgba(0,245,255,0.3);color:var(--cyan);font-size:0.65rem;font-family:var(--font-m);letter-spacing:1px;padding:0.5rem;border-radius:6px;width:calc(100% - 3.2rem);transition:var(--t);text-align:center}
     .card-upload-btn:hover{background:rgba(0,245,255,0.1)}
     body.owner-mode .card-upload-btn{display:block}
-
     .card-body{padding:0 1.6rem 1.2rem;flex:1}
     .card-desc{color:var(--muted);font-size:0.88rem;line-height:1.6;margin-bottom:0.8rem}
     .card-tags{display:flex;flex-wrap:wrap;gap:0.35rem}
     .tag{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:var(--muted);font-size:0.62rem;padding:0.18rem 0.55rem;border-radius:2px;font-family:var(--font-m)}
-
     .card-foot{padding:1rem 1.6rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:0.7rem;background:rgba(0,0,0,0.2)}
     .card-price{font-family:var(--font-d);font-size:1.2rem;font-weight:900;color:var(--card-accent,var(--cyan));text-shadow:0 0 10px rgba(0,245,255,0.3)}
     .card-price span{font-size:0.65rem;font-weight:400;color:var(--muted);font-family:var(--font-b);display:block}
     .card-acts{display:flex;gap:0.4rem}
     .btn-detail{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:0.65rem;padding:0.45rem 0.85rem;border-radius:5px;font-family:var(--font-b);transition:var(--t);letter-spacing:1px}
     .btn-detail:hover{border-color:rgba(0,245,255,0.3);color:var(--text);background:rgba(0,245,255,0.05)}
-    .btn-fb{background:linear-gradient(135deg,#1877f2,#0a5cc7);color:#fff;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;transition:var(--t);display:flex;align-items:center;gap:0.3rem}
+    /* FACEBOOK BUTTONS */
+    .btn-fb{background:linear-gradient(135deg,var(--tg),var(--tg2));color:#fff;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;transition:var(--t);display:flex;align-items:center;gap:0.3rem}
     .btn-fb:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(24,119,242,0.5)}
     .btn-fb svg{width:13px;height:13px}
     .btn-fb-dis{background:rgba(100,116,139,0.2);color:var(--muted);cursor:not-allowed;font-size:0.65rem;padding:0.45rem 0.9rem;border-radius:5px;font-family:var(--font-d);font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:0.3rem}
-
-    /* Card skeleton loader */
-    .card-skeleton{background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(8,15,30,0.98));border:1px solid rgba(0,245,255,0.06);border-radius:var(--r);overflow:hidden;height:340px;position:relative}
-    .card-skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 30%,rgba(0,245,255,0.04) 50%,transparent 70%);animation:shimmer 1.6s infinite}
-    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
     /* LIGHTBOX */
     .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(10px)}
@@ -199,7 +180,6 @@
     .modal-overlay.active{opacity:1;pointer-events:all}
     .modal{background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid rgba(0,245,255,0.2);border-radius:16px;max-width:620px;width:100%;position:relative;transform:scale(0.92) translateY(20px);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);max-height:92vh;overflow-y:auto}
     .modal::-webkit-scrollbar{width:3px}
-    .modal::-webkit-scrollbar-track{background:transparent}
     .modal::-webkit-scrollbar-thumb{background:rgba(0,245,255,0.25);border-radius:2px}
     .modal-overlay.active .modal{transform:scale(1) translateY(0)}
     .modal-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);box-shadow:0 0 20px rgba(0,245,255,0.5)}
@@ -213,12 +193,9 @@
     .modal-ttl{font-family:var(--font-d);font-size:1.4rem;font-weight:900}
     .modal-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--muted);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:var(--t);flex-shrink:0}
     .modal-close:hover{background:rgba(255,45,120,0.2);border-color:var(--pink);color:var(--pink)}
-
-    /* Modal loading state */
     .modal-loading{display:flex;align-items:center;justify-content:center;min-height:200px;font-family:var(--font-m);font-size:0.7rem;color:var(--cyan);letter-spacing:3px;flex-direction:column;gap:1rem}
     .modal-spinner{width:32px;height:32px;border:2px solid rgba(0,245,255,0.15);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-
     .modal-gallery{margin:0 2rem 1rem;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);position:relative;cursor:pointer}
     .modal-gallery img{width:100%;max-height:240px;object-fit:cover;display:block;transition:transform 0.4s ease}
     .modal-gallery:hover img{transform:scale(1.02)}
@@ -226,8 +203,6 @@
     .modal-gallery-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-family:var(--font-m);font-size:0.55rem;letter-spacing:3px;color:var(--cyan);padding:0.8rem;text-align:center}
     .modal-gallery-zoom{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.5);border:1px solid rgba(0,245,255,0.4);color:var(--cyan);font-size:1.5rem;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:var(--t)}
     .modal-gallery:hover .modal-gallery-zoom{opacity:1}
-
-    /* Upload zona */
     .modal-upload-wrap{display:none;margin:0 2rem 1rem}
     body.owner-mode .modal-upload-wrap{display:block}
     .upload-zone{border:2px dashed rgba(0,245,255,0.3);border-radius:10px;padding:1.2rem;text-align:center;cursor:pointer;transition:var(--t);background:rgba(0,245,255,0.02)}
@@ -237,7 +212,6 @@
     .upload-progress{display:none;margin-top:0.7rem;background:rgba(0,0,0,0.3);border-radius:4px;height:4px;overflow:hidden}
     .upload-progress-bar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));width:0%;transition:width 0.3s ease;border-radius:4px}
     .upload-status{font-family:var(--font-m);font-size:0.6rem;text-align:center;margin-top:0.4rem;color:var(--muted)}
-
     .modal-body{padding:0 2rem 1rem}
     .modal-sec-title{font-family:var(--font-d);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin:1.5rem 0 0.7rem;display:flex;align-items:center;gap:0.5rem}
     .modal-sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,245,255,0.3),transparent)}
@@ -249,11 +223,10 @@
     .inc-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.65rem;font-size:0.78rem;display:flex;align-items:center;gap:0.5rem;transition:var(--t)}
     .inc-item:hover{border-color:rgba(0,245,255,0.15);background:rgba(0,245,255,0.03)}
     .inc-icon{font-size:0.95rem}
-
     .modal-foot{padding:1.5rem 2rem 2rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:rgba(0,0,0,0.2)}
     .modal-price{font-family:var(--font-d);font-size:1.8rem;font-weight:900;color:var(--cyan);text-shadow:0 0 20px rgba(0,245,255,0.4)}
     .modal-price-note{font-size:0.72rem;color:var(--muted)}
-    .btn-cotizar-fb{background:linear-gradient(135deg,#1877f2,#0a5cc7);color:#fff;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;transition:var(--t);display:flex;align-items:center;gap:0.5rem;text-transform:uppercase;box-shadow:0 0 20px rgba(24,119,242,0.3)}
+    .btn-cotizar-fb{background:linear-gradient(135deg,var(--tg),var(--tg2));color:#fff;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;transition:var(--t);display:flex;align-items:center;gap:0.5rem;text-transform:uppercase;box-shadow:0 0 20px rgba(24,119,242,0.3)}
     .btn-cotizar-fb:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(24,119,242,0.6)}
     .btn-cotizar-fb svg{width:18px;height:18px}
     .btn-cotizar-dis{background:rgba(100,116,139,0.2);color:var(--muted);cursor:not-allowed;font-family:var(--font-d);font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:0.9rem 1.8rem;border-radius:8px;display:flex;align-items:center;gap:0.5rem}
@@ -270,7 +243,7 @@
     .review-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:0.75rem;transition:var(--t)}
     .review-item:hover{border-color:rgba(0,245,255,0.1)}
     .review-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem}
-    .review-alias{font-family:var(--font-d);font-size:0.65rem;font-weight:700;color:var(--cyan);letter-spacing:1px;text-shadow:0 0 8px rgba(0,245,255,0.3)}
+    .review-alias{font-family:var(--font-d);font-size:0.65rem;font-weight:700;color:var(--cyan);letter-spacing:1px}
     .review-date{font-family:var(--font-m);font-size:0.55rem;color:var(--muted)}
     .review-desc{font-size:0.82rem;color:var(--muted);line-height:1.5;margin-bottom:0.55rem}
     .review-img{width:100%;max-height:110px;object-fit:cover;border-radius:5px;margin-bottom:0.55rem;border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:opacity 0.2s}
@@ -284,8 +257,6 @@
     .rv-del:hover{border-color:var(--pink);color:var(--pink)}
     body.owner-mode .rv-del{display:block}
     .rv-loading{text-align:center;color:var(--muted);font-family:var(--font-m);font-size:0.65rem;padding:1rem;letter-spacing:2px}
-
-    /* REVIEW FORM */
     .rv-form{background:rgba(0,245,255,0.02);border:1px solid rgba(0,245,255,0.1);border-radius:10px;padding:1rem;margin-top:1rem}
     .rv-form-title{font-family:var(--font-d);font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:0.7rem}
     .f-inp{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);color:var(--text);font-family:var(--font-b);font-size:0.88rem;padding:0.5rem 0.75rem;border-radius:6px;outline:none;transition:var(--t);width:100%;margin-bottom:0.4rem}
@@ -342,16 +313,15 @@
     .pwd-modal{position:fixed;inset:0;background:rgba(0,0,0,0.94);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
     .pwd-modal.active{opacity:1;pointer-events:all}
     .pwd-box{background:var(--bg2);border:1px solid rgba(124,58,237,0.4);border-radius:16px;padding:2rem;max-width:340px;width:100%;text-align:center;box-shadow:0 0 40px rgba(124,58,237,0.2)}
-    .pwd-box h3{font-family:var(--font-d);font-size:0.9rem;color:var(--purple);letter-spacing:2px;margin-bottom:0.5rem;text-shadow:0 0 15px rgba(124,58,237,0.5)}
+    .pwd-box h3{font-family:var(--font-d);font-size:0.9rem;color:var(--purple);letter-spacing:2px;margin-bottom:0.5rem}
     .pwd-box p{font-size:0.82rem;color:var(--muted);margin-bottom:1.2rem}
     .pwd-inp{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--text);font-family:var(--font-m);font-size:1rem;padding:0.7rem 1rem;border-radius:8px;outline:none;width:100%;text-align:center;letter-spacing:4px;margin-bottom:0.8rem;transition:var(--t)}
-    .pwd-inp:focus{border-color:rgba(124,58,237,0.5);box-shadow:0 0 0 2px rgba(124,58,237,0.1)}
+    .pwd-inp:focus{border-color:rgba(124,58,237,0.5)}
     .pwd-sub{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#000;font-family:var(--font-d);font-size:0.65rem;font-weight:700;letter-spacing:2px;padding:0.7rem 2rem;border-radius:6px;width:100%;transition:var(--t)}
     .pwd-sub:hover{transform:translateY(-2px);box-shadow:var(--glow-p)}
     .pwd-err{color:var(--pink);font-size:0.7rem;margin-top:0.5rem;display:none}
     .pwd-cancel{margin-top:0.8rem;background:transparent;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer}
 
-    /* REVEAL */
     .reveal{opacity:0;transform:translateY(40px);transition:opacity 0.7s ease,transform 0.7s ease}
     .reveal.vis{opacity:1;transform:translateY(0)}
 
@@ -365,6 +335,8 @@
       section{padding:3rem 1rem}
       .cta-sec{padding:2rem 1rem}
       .owner-panel{bottom:1rem;right:1rem;left:1rem;min-width:unset}
+      .banner-content{padding:1.8rem 1.5rem}
+      .banner-inner{min-height:220px}
     }
     @media(max-width:480px){
       .hero-title{font-size:2.1rem}
@@ -390,6 +362,7 @@
     </div>
   </nav>
 
+  <!-- HERO -->
   <section class="hero" id="inicio">
     <div class="hero-badge">Sistema Educativo Digital</div>
     <h1 class="hero-title">
@@ -402,12 +375,34 @@
       <a href="#nosotros" class="btn-out">¿Por qué nosotros?</a>
     </div>
     <div class="hero-stats">
-      <div class="stat-item"><div class="stat-num" data-target="11">0</div><div class="stat-lbl">Cursos</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="13">0</div><div class="stat-lbl">Cursos</div></div>
       <div class="stat-item"><div class="stat-num" data-target="200">0</div><div class="stat-lbl">Estudiantes</div></div>
       <div class="stat-item"><div class="stat-num" data-target="24">0</div><div class="stat-lbl">Soporte hrs</div></div>
     </div>
   </section>
 
+  <!-- BANNER -->
+  <div class="banner-section" id="bannerSection">
+    <div class="banner-inner reveal" id="bannerInner">
+      <div class="banner-corner tl"></div>
+      <div class="banner-corner tr"></div>
+      <div class="banner-corner bl"></div>
+      <div class="banner-corner br"></div>
+      <div class="banner-bg" id="bannerBg"></div>
+      <div class="banner-overlay"></div>
+      <div class="banner-content">
+        <div class="banner-label">Destacado</div>
+        <h2 class="banner-title" id="bannerTitle">Aprende con los<br><span>Mejores Cursos</span></h2>
+        <p class="banner-sub" id="bannerSub">Acceso inmediato a materiales exclusivos. Paga y recibe tu contenido al instante por Facebook.</p>
+        <a href="#cursos" class="banner-btn">Ver todos los cursos →</a>
+      </div>
+      <div class="banner-empty-hint" id="bannerEmptyHint">SIN BANNER<br>AÚN</div>
+      <button class="banner-upload-btn" onclick="document.getElementById('bannerImgIn').click()">📷 Cambiar banner (admin)</button>
+    </div>
+  </div>
+  <input type="file" accept="image/*" id="bannerImgIn" style="display:none" onchange="uploadBannerImg(event)">
+
+  <!-- TICKER -->
   <div class="ticker-wrap">
     <div class="ticker-track">
       <div class="ticker-item">⚡ <span>ACCESO INMEDIATO</span> VÍA FACEBOOK</div>
@@ -425,6 +420,7 @@
     </div>
   </div>
 
+  <!-- CURSOS -->
   <section id="cursos" style="padding-top:5rem">
     <div class="sec-lbl reveal"># Catálogo</div>
     <h2 class="sec-title reveal">Nuestros Cursos</h2>
@@ -434,6 +430,7 @@
 
   <div class="div-line" style="margin:0 1.5rem"></div>
 
+  <!-- NOSOTROS -->
   <section id="nosotros">
     <div class="sec-lbl reveal"># Ventajas</div>
     <h2 class="sec-title reveal">¿Por qué elegirnos?</h2>
@@ -451,6 +448,7 @@
 
   <div class="div-line" style="margin:0 1.5rem"></div>
 
+  <!-- CTA -->
   <section style="padding:3rem 1.5rem 5rem">
     <div class="cta-sec reveal">
       <div class="sec-lbl">¿Listo para empezar?</div>
@@ -480,12 +478,9 @@
     <div class="modal-glow"></div>
     <div class="modal-corner tl"></div>
     <div class="modal-corner tr"></div>
-    <!-- Loading state -->
     <div id="modalLoading" class="modal-loading" style="display:none">
-      <div class="modal-spinner"></div>
-      <span>CARGANDO...</span>
+      <div class="modal-spinner"></div><span>CARGANDO...</span>
     </div>
-    <!-- Content -->
     <div id="modalContent">
       <div class="modal-head">
         <div class="modal-icon" id="mIcon">📚</div>
@@ -495,18 +490,13 @@
         </div>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
-      <div class="modal-gallery" id="mGallery">
-        <div class="modal-gallery-zoom">🔍</div>
-      </div>
-      <!-- Admin upload zone -->
+      <div class="modal-gallery" id="mGallery"><div class="modal-gallery-zoom">🔍</div></div>
       <div class="modal-upload-wrap">
         <div class="upload-zone" onclick="document.getElementById('modalImgIn').click()">
           <div class="upload-zone-text">📷 Subir / Cambiar captura del curso</div>
           <div class="upload-zone-sub">JPG, PNG, WEBP · Máx 5MB · Solo administrador</div>
         </div>
-        <div class="upload-progress" id="uploadProgress">
-          <div class="upload-progress-bar" id="uploadProgressBar"></div>
-        </div>
+        <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
         <div class="upload-status" id="uploadStatus"></div>
         <input type="file" accept="image/*" id="modalImgIn" style="display:none" onchange="uploadCourseImg(event)">
       </div>
@@ -539,10 +529,10 @@
       <div class="modal-foot">
         <div>
           <div class="modal-price" id="mPrice"></div>
-          <div class="modal-price-note">Contáctanos para conocer precio y métodos de pago</div>
+          <div class="modal-price-note">Contáctanos para pagar y recibir acceso inmediato</div>
           <div id="mNoStock" style="display:none" class="no-stock-banner">⛔ SIN STOCK — Escríbenos para avisarte cuando esté disponible</div>
         </div>
-        <div id="mFbWrap"></div>
+        <div id="mTgWrap"></div>
       </div>
     </div>
   </div>
@@ -557,7 +547,7 @@
 <!-- OWNER PANEL -->
 <div class="owner-panel" id="ownerPanel">
   <div class="op-title">⚙ MODO ADMIN ACTIVO</div>
-  <p class="op-desc">Puedes borrar reseñas y subir capturas. Todo se guarda en la nube.</p>
+  <p class="op-desc">Puedes borrar reseñas, subir capturas y cambiar el banner.</p>
   <button class="btn-logout" onclick="logout()">CERRAR SESIÓN</button>
 </div>
 
@@ -573,13 +563,12 @@
   </div>
 </div>
 
-<!-- Card image upload input (hidden) -->
 <input type="file" accept="image/*" id="cardImgIn" style="display:none" onchange="saveCardImg(event)">
 <div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
-   SUPABASE CONFIG
+   SUPABASE
 ============================================================ */
 const { createClient } = supabase;
 const sb = createClient(
@@ -591,8 +580,10 @@ const sb = createClient(
    CONFIG
 ============================================================ */
 const CONFIG = {
-  facebook: "https://m.me/1102182976302066",
-  ownerPassword: "admin2008"
+  facebook: "https://www.facebook.com/share/17ZE68RmVe/",
+  ownerPassword: "admin2008",
+  bannerTitle: "Aprende con los <span>Mejores Cursos</span>",
+  bannerSub: "Acceso inmediato a materiales exclusivos. Paga y recibe tu contenido al instante por Facebook."
 };
 
 const FB_SVG    = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
@@ -602,36 +593,30 @@ const FB_SVG_SM = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:13p
    CURSOS
 ============================================================ */
 const coursesData = [
-  {id:"idiomas",icon:"🌍",category:"Idiomas",title:"Curso de Idiomas",cardDesc:"Domina nuevas lenguas con métodos modernos. Inglés, francés, japonés y más.",tags:["Inglés","Conversación","Principiante a Avanzado"],accentColor:"#00f5ff",stock:true,desc:"Aprende a comunicarte en otros idiomas con materiales completos y estructurados. Desde pronunciación básica hasta conversación fluida, este curso cubre todo lo que necesitas para dominar un nuevo idioma a tu propio ritmo.",topics:["Pronunciación y fonética básica","Vocabulario esencial y frases cotidianas","Gramática paso a paso con ejercicios","Conversación y expresión oral","Comprensión auditiva y lectora","Inglés, Francés, Japonés y más disponibles"],includes:[{icon:"📁",text:"Material descargable"},{icon:"🎧",text:"Audio y ejercicios"},{icon:"📋",text:"Guías de estudio"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"ingles",icon:"🇺🇸",category:"Idiomas",title:"Inglés sin Barreras",cardDesc:"Habla inglés con confianza desde el primer día. Método conversacional sin memorización.",tags:["Conversacional","Desde cero","Sin memorizar"],accentColor:"#3b82f6",stock:true,desc:"Un enfoque revolucionario para aprender inglés: nada de gramática aburrida. Aprenderás a través de contexto, situaciones reales y repetición espaciada.",topics:["Método natural de adquisición del idioma","Pronunciación americana y británica","Frases para situaciones reales","Conversaciones guiadas paso a paso","Escucha activa y comprensión auditiva","Niveles A1 hasta B2"],includes:[{icon:"🎧",text:"Audios con nativos"},{icon:"📖",text:"Guías de conversación"},{icon:"🎬",text:"Videos situacionales"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"hacking",icon:"🔐",category:"Ciberseguridad",title:"Hacking Ético",cardDesc:"Pentesting, vulnerabilidades y seguridad ofensiva-defensiva desde cero.",tags:["Pentesting","Kali Linux","Redes"],accentColor:"#ff6b35",stock:true,desc:"Aprende ciberseguridad ofensiva y defensiva de forma ética. Este curso te enseña las técnicas que usan los hackers para proteger sistemas, redes y aplicaciones.",topics:["Fundamentos de redes y protocolos","Reconocimiento y escaneo de objetivos","Explotación de vulnerabilidades con Metasploit","Análisis de tráfico con Wireshark","Hacking web: SQLi, XSS, CSRF","Post-explotación y reportes"],includes:[{icon:"🖥️",text:"Labs virtuales"},{icon:"🛠️",text:"Herramientas Kali Linux"},{icon:"📄",text:"Guías PDF"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"excel",icon:"📊",category:"Ofimática",title:"Curso de Excel",cardDesc:"Desde cero hasta fórmulas avanzadas, tablas dinámicas, macros y dashboards.",tags:["Fórmulas","Tablas Dinámicas","Macros"],accentColor:"#00ff88",stock:true,desc:"Conviértete en experto de Excel: desde operaciones básicas hasta análisis de datos avanzado, macros y dashboards profesionales.",topics:["Interfaz y fundamentos","Fórmulas esenciales (SUMA, BUSCARV, SI)","Tablas dinámicas y gráficas","Formato condicional","Macros y VBA básico","Dashboards ejecutivos"],includes:[{icon:"📂",text:"Archivos de práctica"},{icon:"🎬",text:"Ejercicios paso a paso"},{icon:"📊",text:"Plantillas incluidas"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"word",icon:"📝",category:"Ofimática",title:"Curso de Word",cardDesc:"Documentos profesionales con índices, plantillas y combinación de correspondencia.",tags:["Estilos","Plantillas","Correspondencia"],accentColor:"#7c3aed",stock:true,desc:"Aprende a crear documentos profesionales de alto impacto con índices automáticos, combinación de correspondencia y plantillas.",topics:["Formateo de texto y párrafos","Estilos y tabla de contenido automática","Imágenes, tablas y gráficos","Combinación de correspondencia","Plantillas profesionales","Control de cambios"],includes:[{icon:"📄",text:"Documentos de ejemplo"},{icon:"📋",text:"Plantillas listas"},{icon:"🎯",text:"Ejercicios prácticos"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"powerpoint",icon:"🎨",category:"Ofimática",title:"Curso de PowerPoint",cardDesc:"Presentaciones impactantes con animaciones y diseño visual profesional.",tags:["Animaciones","Diseño","Pro"],accentColor:"#f59e0b",stock:true,desc:"Diseña presentaciones que impresionan. Animaciones, transiciones y storytelling para comunicar tus ideas con poder.",topics:["Diseño de diapositivas","Tipografía y colores","Animaciones avanzadas","Multimedia (video, audio)","Infografías en PPT","Trucos de presentador"],includes:[{icon:"🖼️",text:"Plantillas diseñadas"},{icon:"✨",text:"Iconos y recursos"},{icon:"🎬",text:"Ejemplos animados"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"mecanica",icon:"🔧",category:"Automotriz",title:"Mecánica Automotriz",cardDesc:"Diagnóstico, mantenimiento preventivo, frenos y motor desde cero.",tags:["Motor","Frenos","OBD2"],accentColor:"#9ca3af",stock:true,desc:"¿Cansado de pagar caro en el taller? Aprende a diagnosticar y reparar tu vehículo: cambio de aceite hasta fallas complejas.",topics:["Herramientas de taller","Mantenimiento: aceite, filtros","Sistema de frenos","Motor: fallas y reparación básica","Suspensión y dirección","Diagnóstico OBD2","Transmisión","Cómo montar tu taller"],includes:[{icon:"🔧",text:"Manuales PDF"},{icon:"🎬",text:"Videos paso a paso"},{icon:"🚗",text:"Casos reales"},{icon:"🛠️",text:"Guías de herramientas"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"caligrafia",icon:"✍️",category:"Arte",title:"Caligrafía",cardDesc:"Lettering moderno, brush pen y caligrafía clásica desde cero.",tags:["Lettering","Brush pen","Arte"],accentColor:"#ec4899",stock:true,desc:"Transforma tu escritura en arte. Caligrafía clásica, lettering moderno y brush pen para decoración, invitaciones y marca personal.",topics:["Herramientas esenciales","Presión, ángulo y fluidez","Copperplate clásica","Hand lettering moderno","Brush pen","Proyectos finales"],includes:[{icon:"📓",text:"Hojas de práctica"},{icon:"🖊️",text:"Guías de trazos"},{icon:"🎨",text:"Proyectos creativos"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"trading",icon:"📈",category:"Finanzas",title:"Trading",cardDesc:"Análisis técnico, gestión de riesgo y estrategias reales en mercados financieros.",tags:["Forex","Cripto","Análisis técnico"],accentColor:"#10b981",stock:true,desc:"Aprende a leer el mercado, identificar oportunidades y gestionar el riesgo en forex, criptomonedas y acciones.",topics:["Mercado financiero","Velas japonesas","Soportes y resistencias","RSI, MACD, Medias","Gestión de riesgo","Estrategias para principiantes"],includes:[{icon:"📊",text:"Plantillas de análisis"},{icon:"📋",text:"Diario de trading"},{icon:"🎬",text:"Sesiones grabadas"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"capcut",icon:"🎬",category:"Edición",title:"CapCut & Canva",cardDesc:"Edita videos virales y diseña contenido pro para redes desde tu celular.",tags:["CapCut","Canva","Reels"],accentColor:"#a855f7",stock:true,desc:"Con CapCut edita videos para TikTok y Reels. Con Canva crea posts, stories y logos de nivel profesional sin ser diseñador.",topics:["Herramientas de CapCut","Transiciones y efectos virales","Texto animado y música","Canva: plantillas y marca","Posts, stories y thumbnails","Exportación optimizada"],includes:[{icon:"📱",text:"Desde celular o PC"},{icon:"🎞️",text:"Plantillas"},{icon:"✨",text:"Pack de recursos"},{icon:"💬",text:"Soporte por Facebook"}],price:"Consultar precio"},
-  {id:"paquete",icon:"📦",category:"Paquete Especial",title:"Paquete a tu Medida",cardDesc:"Elige los cursos que quieras y arma tu paquete con precio especial.",tags:["Personalizado","Ahorra más","Tú eliges"],accentColor:"#f97316",stock:true,desc:"Selecciona 2 o más cursos y obtén precio especial combinado. Escríbenos indicando qué cursos te interesan.",topics:["Elige cualquier combinación","Precio especial por paquete","Acceso inmediato","Sin límite de cursos","Ideal para emprendedores","Soporte dedicado"],includes:[{icon:"📦",text:"Todos los elegidos"},{icon:"💰",text:"Precio especial"},{icon:"⚡",text:"Acceso inmediato"},{icon:"💬",text:"Soporte por Facebook"}],price:"¡Precio especial!"}
+  {id:"idiomas",icon:"🌍",category:"Idiomas",title:"Curso de Idiomas",cardDesc:"Domina nuevas lenguas con métodos modernos. Inglés, francés, japonés y más.",tags:["Inglés","Conversación","Principiante a Avanzado"],accentColor:"#00f5ff",stock:true,desc:"Aprende a comunicarte en otros idiomas con materiales completos y estructurados. Desde pronunciación básica hasta conversación fluida.",topics:["Pronunciación y fonética básica","Vocabulario esencial y frases cotidianas","Gramática paso a paso con ejercicios","Conversación y expresión oral","Comprensión auditiva y lectora","Inglés, Francés, Japonés y más disponibles"],includes:[{icon:"📁",text:"Material descargable"},{icon:"🎧",text:"Audio y ejercicios"},{icon:"📋",text:"Guías de estudio"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"ingles",icon:"🇺🇸",category:"Idiomas",title:"Inglés sin Barreras",cardDesc:"Habla inglés con confianza desde el primer día. Método conversacional sin memorización.",tags:["Conversacional","Desde cero","Sin memorizar"],accentColor:"#3b82f6",stock:true,desc:"Un enfoque revolucionario para aprender inglés a través de contexto, situaciones reales y repetición espaciada.",topics:["Método natural de adquisición del idioma","Pronunciación americana y británica","Frases para situaciones reales","Conversaciones guiadas paso a paso","Escucha activa y comprensión auditiva","Niveles A1 hasta B2"],includes:[{icon:"🎧",text:"Audios con nativos"},{icon:"📖",text:"Guías de conversación"},{icon:"🎬",text:"Videos situacionales"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"hacking",icon:"🔐",category:"Ciberseguridad",title:"Hacking Ético",cardDesc:"Pentesting, vulnerabilidades y seguridad ofensiva-defensiva desde cero.",tags:["Pentesting","Kali Linux","Redes"],accentColor:"#ff6b35",stock:true,desc:"Aprende ciberseguridad ofensiva y defensiva de forma ética. Técnicas reales para proteger sistemas, redes y aplicaciones.",topics:["Fundamentos de redes y protocolos","Reconocimiento y escaneo de objetivos","Explotación de vulnerabilidades con Metasploit","Análisis de tráfico con Wireshark","Hacking web: SQLi, XSS, CSRF","Post-explotación y reportes"],includes:[{icon:"🖥️",text:"Labs virtuales"},{icon:"🛠️",text:"Herramientas Kali Linux"},{icon:"📄",text:"Guías PDF"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"excel",icon:"📊",category:"Ofimática",title:"Curso de Excel",cardDesc:"Desde cero hasta fórmulas avanzadas, tablas dinámicas, macros y dashboards.",tags:["Fórmulas","Tablas Dinámicas","Macros"],accentColor:"#00ff88",stock:true,desc:"Conviértete en experto de Excel: desde básico hasta macros y dashboards profesionales.",topics:["Interfaz y fundamentos","Fórmulas esenciales (SUMA, BUSCARV, SI)","Tablas dinámicas y gráficas","Formato condicional","Macros y VBA básico","Dashboards ejecutivos"],includes:[{icon:"📂",text:"Archivos de práctica"},{icon:"🎬",text:"Ejercicios paso a paso"},{icon:"📊",text:"Plantillas incluidas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"word",icon:"📝",category:"Ofimática",title:"Curso de Word",cardDesc:"Documentos profesionales con índices, plantillas y combinación de correspondencia.",tags:["Estilos","Plantillas","Correspondencia"],accentColor:"#7c3aed",stock:true,desc:"Crea documentos profesionales de alto impacto con índices automáticos, combinación de correspondencia y plantillas.",topics:["Formateo de texto y párrafos","Estilos y tabla de contenido automática","Imágenes, tablas y gráficos","Combinación de correspondencia","Plantillas profesionales","Control de cambios"],includes:[{icon:"📄",text:"Documentos de ejemplo"},{icon:"📋",text:"Plantillas listas"},{icon:"🎯",text:"Ejercicios prácticos"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"powerpoint",icon:"🎨",category:"Ofimática",title:"Curso de PowerPoint",cardDesc:"Presentaciones impactantes con animaciones y diseño visual profesional.",tags:["Animaciones","Diseño","Pro"],accentColor:"#f59e0b",stock:true,desc:"Diseña presentaciones que impresionan con animaciones, transiciones y storytelling.",topics:["Diseño de diapositivas","Tipografía y colores","Animaciones avanzadas","Multimedia (video, audio)","Infografías en PPT","Trucos de presentador"],includes:[{icon:"🖼️",text:"Plantillas diseñadas"},{icon:"✨",text:"Iconos y recursos"},{icon:"🎬",text:"Ejemplos animados"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"mecanica",icon:"🔧",category:"Automotriz",title:"Mecánica Automotriz",cardDesc:"Diagnóstico, mantenimiento preventivo, frenos y motor desde cero.",tags:["Motor","Frenos","OBD2"],accentColor:"#9ca3af",stock:true,desc:"Aprende a diagnosticar y reparar tu vehículo: desde cambio de aceite hasta fallas complejas de motor.",topics:["Herramientas de taller","Mantenimiento: aceite, filtros","Sistema de frenos","Motor: fallas y reparación básica","Suspensión y dirección","Diagnóstico OBD2","Transmisión","Cómo montar tu taller"],includes:[{icon:"🔧",text:"Manuales PDF"},{icon:"🎬",text:"Videos paso a paso"},{icon:"🚗",text:"Casos reales"},{icon:"🛠️",text:"Guías de herramientas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"caligrafia",icon:"✍️",category:"Arte",title:"Caligrafía",cardDesc:"Lettering moderno, brush pen y caligrafía clásica desde cero.",tags:["Lettering","Brush pen","Arte"],accentColor:"#ec4899",stock:true,desc:"Transforma tu escritura en arte con caligrafía clásica, lettering moderno y brush pen.",topics:["Herramientas esenciales","Presión, ángulo y fluidez","Copperplate clásica","Hand lettering moderno","Brush pen","Proyectos finales"],includes:[{icon:"📓",text:"Hojas de práctica"},{icon:"🖊️",text:"Guías de trazos"},{icon:"🎨",text:"Proyectos creativos"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"trading",icon:"📈",category:"Finanzas",title:"Trading",cardDesc:"Análisis técnico, gestión de riesgo y estrategias reales en mercados financieros.",tags:["Forex","Cripto","Análisis técnico"],accentColor:"#10b981",stock:true,desc:"Aprende a leer el mercado, identificar oportunidades y gestionar el riesgo en forex, criptos y acciones.",topics:["Mercado financiero","Velas japonesas","Soportes y resistencias","RSI, MACD, Medias","Gestión de riesgo","Estrategias para principiantes"],includes:[{icon:"📊",text:"Plantillas de análisis"},{icon:"📋",text:"Diario de trading"},{icon:"🎬",text:"Sesiones grabadas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"capcut",icon:"🎬",category:"Edición",title:"CapCut & Canva",cardDesc:"Edita videos virales y diseña contenido pro para redes desde tu celular.",tags:["CapCut","Canva","Reels"],accentColor:"#a855f7",stock:true,desc:"Con CapCut edita videos para TikTok y Reels. Con Canva crea posts, stories y logos de nivel profesional.",topics:["Herramientas de CapCut","Transiciones y efectos virales","Texto animado y música","Canva: plantillas y marca","Posts, stories y thumbnails","Exportación optimizada"],includes:[{icon:"📱",text:"Desde celular o PC"},{icon:"🎞️",text:"Plantillas"},{icon:"✨",text:"Pack de recursos"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"paquete",icon:"📦",category:"Paquete Especial",title:"Paquete a tu Medida",cardDesc:"Elige los cursos que quieras y arma tu paquete con precio especial.",tags:["Personalizado","Ahorra más","Tú eliges"],accentColor:"#f97316",stock:true,desc:"Selecciona 2 o más cursos y obtén precio especial combinado. Escríbenos indicando qué cursos te interesan.",topics:["Elige cualquier combinación","Precio especial por paquete","Acceso inmediato","Sin límite de cursos","Ideal para emprendedores","Soporte dedicado"],includes:[{icon:"📦",text:"Todos los elegidos"},{icon:"💰",text:"Precio especial"},{icon:"⚡",text:"Acceso inmediato"},{icon:"💬",text:"Soporte por Facebook"}],price:"¡Precio especial!"},
+  {id:"fullstack",icon:"🖥️",category:"Programación",title:"Programación Full Stack",cardDesc:"Domina el desarrollo web completo: frontend, backend, bases de datos y despliegue real.",tags:["Frontend","Backend","Bases de datos"],accentColor:"#06b6d4",stock:true,desc:"Conviértete en desarrollador Full Stack desde cero. Aprende a construir aplicaciones web completas dominando el frontend, backend, bases de datos SQL y NoSQL, y el despliegue en servidores reales.",topics:["HTML, CSS y JavaScript desde cero","React para el frontend","Node.js y Express para el backend","Bases de datos: MySQL y MongoDB","APIs REST: creación y consumo","Autenticación con JWT","Despliegue en la nube (Vercel, Railway)","Proyecto final: app web completa"],includes:[{icon:"💻",text:"Proyectos reales completos"},{icon:"🗄️",text:"Base de datos incluida"},{icon:"🚀",text:"Despliegue en producción"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"},
+  {id:"kalilinux",icon:"🐉",category:"Ciberseguridad",title:"Uso de Kali Linux",cardDesc:"Domina el SO favorito de los hackers éticos: herramientas, comandos y flujos de trabajo reales.",tags:["Kali Linux","Terminal","Hacking"],accentColor:"#4f46e5",stock:true,desc:"Kali Linux es el sistema operativo más poderoso para ciberseguridad. Aprende a instalarlo, configurarlo y dominar sus +600 herramientas especializadas para pentesting, análisis forense y hacking ético.",topics:["Instalación y configuración de Kali Linux","Comandos esenciales de la terminal Linux","Gestión de herramientas y repositorios","Nmap: escaneo de redes y puertos","Metasploit Framework: explotación real","Aircrack-ng: auditoría de redes WiFi","Burp Suite: análisis de tráfico web","Análisis forense básico con Kali"],includes:[{icon:"🐉",text:"Guía de instalación paso a paso"},{icon:"⚙️",text:"Cheatsheets de comandos"},{icon:"🛠️",text:"+20 herramientas explicadas"},{icon:"💬",text:"Soporte por Facebook"}],price:"$99 MXN"}
 ];
 
 /* ============================================================
    ESTADO
 ============================================================ */
-let ownerMode     = false;
-let curCourseId   = null;
-let rvImgFile     = null;  // FIX: guardamos el File, no base64
-let cardUploadId  = null;
-
-// Cache de imágenes de cursos — evita re-fetch al abrir modal
+let ownerMode = false, curCourseId = null, rvImgFile = null, cardUploadId = null;
 const imgCache = {};
 
-/* ============================================================
-   DEVICE ID
-============================================================ */
 function getDeviceId(){
-  let d = localStorage.getItem('did');
-  if(!d){ d = 'd' + Date.now() + Math.random().toString(36).substr(2,8); localStorage.setItem('did',d); }
+  let d=localStorage.getItem('did');
+  if(!d){d='d'+Date.now()+Math.random().toString(36).substr(2,8);localStorage.setItem('did',d);}
   return d;
 }
 
@@ -640,98 +625,91 @@ function getDeviceId(){
 ============================================================ */
 async function fetchAllCourseImgs(){
   try{
-    const { data, error } = await sb.from('course_images').select('course_id,image_url');
-    if(error) throw error;
-    (data||[]).forEach(row => { imgCache[row.course_id] = row.image_url; });
-  } catch(e){
-    console.warn('fetchAllCourseImgs error:', e.message);
-  }
+    const{data,error}=await sb.from('course_images').select('course_id,image_url');
+    if(error)throw error;
+    (data||[]).forEach(r=>{imgCache[r.course_id]=r.image_url;});
+  }catch(e){console.warn('fetchAllCourseImgs:',e.message);}
 }
-
-async function upsertCourseImg(courseId, url){
-  const { error } = await sb.from('course_images')
-    .upsert({ course_id: courseId, image_url: url, updated_at: new Date().toISOString() },
-             { onConflict: 'course_id' });
-  if(error) throw error;
+async function upsertCourseImg(courseId,url){
+  const{error}=await sb.from('course_images').upsert({course_id:courseId,image_url:url,updated_at:new Date().toISOString()},{onConflict:'course_id'});
+  if(error)throw error;
 }
-
-// FIX: upload mejorado con manejo correcto de errores y cache-busting
-async function uploadToStorage(bucket, path, file){
-  // Intentar subir con upsert
-  const { data, error } = await sb.storage.from(bucket).upload(path, file, {
-    upsert: true,
-    contentType: file.type,
-    cacheControl: '3600'
-  });
-  if(error){
-    // Si el error es de permisos, lanzar mensaje claro
-    if(error.message && error.message.includes('row-level security')){
-      throw new Error('Sin permiso para subir. Verifica las políticas del bucket en Supabase.');
-    }
-    throw error;
-  }
-  // Obtener URL pública
-  const { data: pub } = sb.storage.from(bucket).getPublicUrl(path);
-  if(!pub || !pub.publicUrl) throw new Error('No se pudo obtener la URL pública del archivo.');
-  // Añadir cache-buster para forzar recarga de imagen
-  return pub.publicUrl + '?t=' + Date.now();
+async function uploadToStorage(bucket,path,file){
+  const{error}=await sb.storage.from(bucket).upload(path,file,{upsert:true,contentType:file.type,cacheControl:'3600'});
+  if(error){if(error.message&&error.message.includes('row-level security'))throw new Error('Sin permiso para subir. Verifica las políticas del bucket en Supabase.');throw error;}
+  const{data:pub}=sb.storage.from(bucket).getPublicUrl(path);
+  if(!pub||!pub.publicUrl)throw new Error('No se pudo obtener la URL pública.');
+  return pub.publicUrl+'?t='+Date.now();
 }
-
 async function fetchReviews(courseId){
-  const { data, error } = await sb.from('reviews').select('*').eq('course_id',courseId).order('created_at',{ascending:false});
-  if(error) throw error;
-  return data || [];
+  const{data,error}=await sb.from('reviews').select('*').eq('course_id',courseId).order('created_at',{ascending:false});
+  if(error)throw error;
+  return data||[];
 }
-
-async function insertReview(rv){
-  const { error } = await sb.from('reviews').insert(rv);
-  if(error) throw error;
+async function insertReview(rv){const{error}=await sb.from('reviews').insert(rv);if(error)throw error;}
+async function deleteReviewDb(id){const{error}=await sb.from('reviews').delete().eq('id',id);if(error)throw error;}
+async function fetchMyVotes(courseId,deviceId){
+  const{data}=await sb.from('votes').select('review_id,vote_type').eq('device_id',deviceId);
+  const map={};(data||[]).forEach(v=>map[v.review_id]=v.vote_type);return map;
 }
-
-async function deleteReviewDb(id){
-  const { error } = await sb.from('reviews').delete().eq('id',id);
-  if(error) throw error;
+async function upsertVote(reviewId,deviceId,type){
+  const{error}=await sb.from('votes').upsert({id:reviewId+'_'+deviceId,review_id:reviewId,device_id:deviceId,vote_type:type},{onConflict:'id'});
+  if(error)throw error;
 }
+async function deleteVote(reviewId,deviceId){await sb.from('votes').delete().eq('id',reviewId+'_'+deviceId);}
+async function updateReviewVotes(id,likes,dislikes){await sb.from('reviews').update({likes,dislikes}).eq('id',id);}
 
-async function fetchMyVotes(courseId, deviceId){
-  const { data } = await sb.from('votes').select('review_id,vote_type').eq('device_id',deviceId);
-  const map = {};
-  (data||[]).forEach(v => map[v.review_id] = v.vote_type);
-  return map;
+/* ============================================================
+   BANNER
+============================================================ */
+function applyBannerImg(url){
+  const bg=document.getElementById('bannerBg');
+  const hint=document.getElementById('bannerEmptyHint');
+  if(url){
+    bg.style.backgroundImage=`url('${url}')`;
+    bg.classList.add('has-img');
+    hint.style.display='none';
+  } else {
+    bg.style.backgroundImage='';
+    bg.classList.remove('has-img');
+    hint.style.display='block';
+  }
 }
-
-async function upsertVote(reviewId, deviceId, type){
-  const { error } = await sb.from('votes').upsert(
-    { id: reviewId+'_'+deviceId, review_id: reviewId, device_id: deviceId, vote_type: type },
-    { onConflict: 'id' }
-  );
-  if(error) throw error;
+async function loadBannerImg(){
+  try{
+    const{data}=await sb.from('course_images').select('image_url').eq('course_id','__banner__').single();
+    applyBannerImg(data?.image_url||null);
+  }catch(e){applyBannerImg(null);}
 }
-
-async function deleteVote(reviewId, deviceId){
-  await sb.from('votes').delete().eq('id', reviewId+'_'+deviceId);
-}
-
-async function updateReviewVotes(id, likes, dislikes){
-  await sb.from('reviews').update({ likes, dislikes }).eq('id',id);
+async function uploadBannerImg(e){
+  if(!ownerMode){showToast('Debes ser admin','err');return;}
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>5*1024*1024){showToast('Imagen muy grande (máx 5MB)','err');e.target.value='';return;}
+  showToast('⬆ Subiendo banner...','');
+  try{
+    const ext=f.name.split('.').pop()||'jpg';
+    const path='banner/banner_'+Date.now()+'.'+ext;
+    const url=await uploadToStorage('course-images',path,f);
+    await upsertCourseImg('__banner__',url);
+    applyBannerImg(url);
+    showToast('✅ Banner actualizado','ok');
+  }catch(err){showToast('Error: '+err.message,'err');}
+  e.target.value='';
 }
 
 /* ============================================================
-   RENDER CARDS — FIX: sin fetch por card, usa caché global
+   RENDER CARDS
 ============================================================ */
 function renderCards(){
-  const grid = document.getElementById('coursesGrid');
-  grid.innerHTML = '';
-
-  coursesData.forEach(c => {
-    const imgUrl = imgCache[c.id] || null;
-    const oos    = !c.stock;
-
-    const el = document.createElement('div');
-    el.className = 'course-card reveal' + (oos?' oos':'');
-    el.style.setProperty('--card-accent', c.accentColor);
-
-    el.innerHTML = `
+  const grid=document.getElementById('coursesGrid');
+  grid.innerHTML='';
+  coursesData.forEach(c=>{
+    const imgUrl=imgCache[c.id]||null;
+    const oos=!c.stock;
+    const el=document.createElement('div');
+    el.className='course-card reveal'+(oos?' oos':'');
+    el.style.setProperty('--card-accent',c.accentColor);
+    el.innerHTML=`
       <span class="stock-badge ${oos?'out':'in'}">${oos?'SIN STOCK':'DISPONIBLE'}</span>
       <div class="card-corner tl"></div><div class="card-corner tr"></div>
       <div class="card-corner bl"></div><div class="card-corner br"></div>
@@ -743,159 +721,111 @@ function renderCards(){
         </div>
       </div>
       ${imgUrl
-        ? `<div class="card-prev" onclick="openLightboxUrl('${imgUrl}')">
-             <img src="${imgUrl}" alt="Vista previa" loading="lazy">
-             <div class="card-prev-zoom">🔍</div>
-             <div class="card-prev-lbl">▶ CLIC PARA AMPLIAR</div>
-           </div>`
-        : `<div class="card-prev"><div class="card-prev-empty">SIN CAPTURA AÚN</div></div>`}
+        ?`<div class="card-prev" onclick="openLightboxUrl('${imgUrl}')"><img src="${imgUrl}" alt="Vista previa" loading="lazy"><div class="card-prev-zoom">🔍</div><div class="card-prev-lbl">▶ CLIC PARA AMPLIAR</div></div>`
+        :`<div class="card-prev"><div class="card-prev-empty">SIN CAPTURA AÚN</div></div>`}
       <button class="card-upload-btn" onclick="trigCardUpload('${c.id}')">📷 Cambiar captura (admin)</button>
       <div class="card-body">
         <p class="card-desc">${c.cardDesc}</p>
         <div class="card-tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
       </div>
       <div class="card-foot">
-        <div class="card-price">${oos?`<span style="color:var(--pink)">SIN STOCK</span>`:'Consultar'}<span>${oos?'Avísame cuando haya':'Precio a convenir'}</span></div>
+        <div class="card-price">${oos?`<span style="color:var(--pink)">SIN STOCK</span>`:'$99 MXN'}<span>${oos?'Avísame cuando haya':'Precio: $99 MXN'}</span></div>
         <div class="card-acts">
           <button class="btn-detail" onclick="openModal('${c.id}')">Detalle</button>
           ${oos
-            ? `<span class="btn-fb-dis">⛔ No disp.</span>`
-            : `<button class="btn-fb" onclick="contactFB('${c.title}')">${FB_SVG_SM} Cotizar</button>`}
+            ?`<span class="btn-fb-dis">⛔ No disp.</span>`
+            :`<button class="btn-fb" onclick="contactFB('${c.title}')">${FB_SVG_SM} Cotizar</button>`}
         </div>
       </div>`;
-
     grid.appendChild(el);
     revealObs.observe(el);
   });
 }
 
 /* ============================================================
-   MODAL — FIX: muestra loading, luego contenido
+   MODAL
 ============================================================ */
 async function openModal(id){
-  const d = coursesData.find(c => c.id === id);
-  if(!d) return;
-
-  curCourseId = id;
-
-  // Mostrar overlay y loading inmediatamente
-  const overlay = document.getElementById('modalOverlay');
+  const d=coursesData.find(c=>c.id===id);if(!d)return;
+  curCourseId=id;
+  const overlay=document.getElementById('modalOverlay');
   overlay.classList.add('active');
-  document.body.style.overflow = 'hidden';
-  document.getElementById('modalLoading').style.display = 'flex';
-  document.getElementById('modalContent').style.display = 'none';
-
-  // Llenar datos estáticos (sin esperar Supabase)
-  document.getElementById('mIcon').textContent  = d.icon;
-  document.getElementById('mCat').textContent   = d.category;
-  document.getElementById('mTtl').textContent   = d.title;
-  document.getElementById('mDesc').textContent  = d.desc;
-  document.getElementById('mPrice').textContent = d.price;
-  document.getElementById('mTopics').innerHTML  = d.topics.map(t=>`<div class="modal-topic">${t}</div>`).join('');
-  document.getElementById('mIncludes').innerHTML = d.includes.map(i=>`<div class="inc-item"><span class="inc-icon">${i.icon}</span>${i.text}</div>`).join('');
-
-  // Stock
-  const noStock = !d.stock;
-  document.getElementById('mNoStock').style.display = noStock ? 'block' : 'none';
-  document.getElementById('mFbWrap').innerHTML = noStock
-    ? `<span class="btn-cotizar-dis">⛔ SIN STOCK</span>`
-    : `<button class="btn-cotizar-fb" onclick="contactFB('${d.title}')">${FB_SVG} Contactar por Facebook</button>`;
-
+  document.body.style.overflow='hidden';
+  document.getElementById('modalLoading').style.display='flex';
+  document.getElementById('modalContent').style.display='none';
+  document.getElementById('mIcon').textContent=d.icon;
+  document.getElementById('mCat').textContent=d.category;
+  document.getElementById('mTtl').textContent=d.title;
+  document.getElementById('mDesc').textContent=d.desc;
+  document.getElementById('mPrice').textContent=d.price;
+  document.getElementById('mTopics').innerHTML=d.topics.map(t=>`<div class="modal-topic">${t}</div>`).join('');
+  document.getElementById('mIncludes').innerHTML=d.includes.map(i=>`<div class="inc-item"><span class="inc-icon">${i.icon}</span>${i.text}</div>`).join('');
+  const noStock=!d.stock;
+  document.getElementById('mNoStock').style.display=noStock?'block':'none';
+  document.getElementById('mTgWrap').innerHTML=noStock
+    ?`<span class="btn-cotizar-dis">⛔ SIN STOCK</span>`
+    :`<button class="btn-cotizar-fb" onclick="contactFB('${d.title}')">${FB_SVG} Contactar por Facebook</button>`;
   resetRvForm();
-
-  // Cargar datos async en paralelo
-  try {
-    const [imgUrl, reviews] = await Promise.all([
-      // Usa caché si existe
-      imgCache[id] !== undefined ? Promise.resolve(imgCache[id]) : fetchSingleImg(id),
+  try{
+    const[imgUrl,reviews]=await Promise.all([
+      imgCache[id]!==undefined?Promise.resolve(imgCache[id]):fetchSingleImg(id),
       fetchReviews(id)
     ]);
-
-    // Galería
-    const gal = document.getElementById('mGallery');
+    const gal=document.getElementById('mGallery');
     if(imgUrl){
-      gal.innerHTML = `<img src="${imgUrl}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
-      gal.onclick = () => openLightboxUrl(imgUrl);
-    } else {
-      gal.innerHTML = `<div class="modal-gallery-empty">📷 Sin captura — el admin puede agregar una vista previa</div>`;
-      gal.onclick = null;
+      gal.innerHTML=`<img src="${imgUrl}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
+      gal.onclick=()=>openLightboxUrl(imgUrl);
+    }else{
+      gal.innerHTML=`<div class="modal-gallery-empty">📷 Sin captura — el admin puede agregar una vista previa</div>`;
+      gal.onclick=null;
     }
-
-    // Reseñas
-    const myVotes = await fetchMyVotes(id, getDeviceId());
-    renderReviews(reviews, myVotes, id);
-
-  } catch(e){
-    console.error('Modal load error:', e);
-    document.getElementById('rvList').innerHTML = `<div class="rv-loading" style="color:var(--pink)">Error al cargar datos</div>`;
+    const myVotes=await fetchMyVotes(id,getDeviceId());
+    renderReviews(reviews,myVotes,id);
+  }catch(e){
+    console.error('Modal load error:',e);
+    document.getElementById('rvList').innerHTML=`<div class="rv-loading" style="color:var(--pink)">Error al cargar datos</div>`;
   }
-
-  // Mostrar contenido, ocultar loading
-  document.getElementById('modalLoading').style.display = 'none';
-  document.getElementById('modalContent').style.display = 'block';
-  document.getElementById('modal').scrollTop = 0;
+  document.getElementById('modalLoading').style.display='none';
+  document.getElementById('modalContent').style.display='block';
+  document.getElementById('modal').scrollTop=0;
 }
-
 async function fetchSingleImg(courseId){
-  const { data } = await sb.from('course_images').select('image_url').eq('course_id',courseId).single();
-  const url = data?.image_url || null;
-  imgCache[courseId] = url;
-  return url;
+  const{data}=await sb.from('course_images').select('image_url').eq('course_id',courseId).single();
+  const url=data?.image_url||null;imgCache[courseId]=url;return url;
 }
-
-function closeModalOut(e){
-  if(e.target === document.getElementById('modalOverlay')) closeModal();
-}
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('active');
-  document.body.style.overflow = '';
-  curCourseId = null;
-}
-document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ closeModal(); closeLightbox(); }
-});
+function closeModalOut(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow='';curCourseId=null;}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeLightbox();}});
 
 /* ============================================================
    LIGHTBOX
 ============================================================ */
-function openLightboxUrl(url){
-  document.getElementById('lightboxImg').src = url;
-  document.getElementById('lightbox').classList.add('active');
-}
-function openLightbox(el){
-  const img = el.querySelector('img');
-  if(img) openLightboxUrl(img.src);
-}
-function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('active');
-}
+function openLightboxUrl(url){document.getElementById('lightboxImg').src=url;document.getElementById('lightbox').classList.add('active');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
 
 /* ============================================================
    REVIEWS
 ============================================================ */
 async function loadReviews(courseId){
-  document.getElementById('rvCount').textContent = 'Cargando...';
-  document.getElementById('rvList').innerHTML = '<div class="rv-loading">[ CARGANDO... ]</div>';
+  document.getElementById('rvCount').textContent='Cargando...';
+  document.getElementById('rvList').innerHTML='<div class="rv-loading">[ CARGANDO... ]</div>';
   try{
-    const reviews  = await fetchReviews(courseId);
-    const myVotes  = await fetchMyVotes(courseId, getDeviceId());
-    renderReviews(reviews, myVotes, courseId);
-  } catch(e){
-    document.getElementById('rvList').innerHTML = '<div class="rv-loading" style="color:var(--pink)">Error cargando reseñas</div>';
-  }
+    const reviews=await fetchReviews(courseId);
+    const myVotes=await fetchMyVotes(courseId,getDeviceId());
+    renderReviews(reviews,myVotes,courseId);
+  }catch(e){document.getElementById('rvList').innerHTML='<div class="rv-loading" style="color:var(--pink)">Error cargando reseñas</div>';}
 }
-
-function renderReviews(reviews, myVotes, courseId){
-  document.getElementById('rvCount').textContent = reviews.length + ' reseña' + (reviews.length!==1?'s':'');
-  const list = document.getElementById('rvList');
-  if(!reviews.length){ list.innerHTML = '<div class="rv-loading">Sé el primero en dejar una reseña ⭐</div>'; return; }
-  list.innerHTML = reviews.map(r => {
-    const mv = myVotes[r.id] || null;
-    const d  = new Date(r.created_at).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
-    return `<div class="review-item" id="ri_${r.id}">
+function renderReviews(reviews,myVotes,courseId){
+  document.getElementById('rvCount').textContent=reviews.length+' reseña'+(reviews.length!==1?'s':'');
+  const list=document.getElementById('rvList');
+  if(!reviews.length){list.innerHTML='<div class="rv-loading">Sé el primero en dejar una reseña ⭐</div>';return;}
+  list.innerHTML=reviews.map(r=>{
+    const mv=myVotes[r.id]||null;
+    const d=new Date(r.created_at).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="review-item">
       <div class="review-hdr"><span class="review-alias">${esc(r.alias)}</span><span class="review-date">${d}</span></div>
       <p class="review-desc">${esc(r.description)}</p>
-      ${r.image_url ? `<img src="${r.image_url}" class="review-img" onclick="openLightboxUrl('${r.image_url}')" alt="captura">` : ''}
+      ${r.image_url?`<img src="${r.image_url}" class="review-img" onclick="openLightboxUrl('${r.image_url}')" alt="captura">`:''}
       <div class="review-acts">
         <button class="rv-vote ${mv==='like'?'vl':''}" onclick="voteRv('${courseId}','${r.id}','like',${r.likes},${r.dislikes})">👍 ${r.likes}</button>
         <button class="rv-vote ${mv==='dislike'?'vd':''}" onclick="voteRv('${courseId}','${r.id}','dislike',${r.likes},${r.dislikes})">👎 ${r.dislikes}</button>
@@ -904,385 +834,182 @@ function renderReviews(reviews, myVotes, courseId){
     </div>`;
   }).join('');
 }
-
 async function submitReview(){
-  const alias = document.getElementById('rvAlias').value.trim();
-  const desc  = document.getElementById('rvDescIn').value.trim();
-  if(!alias){ showToast('Escribe un alias','err'); return; }
-  if(!desc){  showToast('Escribe tu opinión','err'); return; }
-  if(!curCourseId) return;
-
-  const btn = document.getElementById('rvSubmitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Publicando...';
-
+  const alias=document.getElementById('rvAlias').value.trim();
+  const desc=document.getElementById('rvDescIn').value.trim();
+  if(!alias){showToast('Escribe un alias','err');return;}
+  if(!desc){showToast('Escribe tu opinión','err');return;}
+  if(!curCourseId)return;
+  const btn=document.getElementById('rvSubmitBtn');
+  btn.disabled=true;btn.textContent='Publicando...';
   try{
-    let imgUrl = null;
+    let imgUrl=null;
     if(rvImgFile){
-      // FIX: subir archivo directamente, no base64
-      const ext  = rvImgFile.name.split('.').pop() || 'jpg';
-      const path = 'reviews/' + Date.now() + '_' + Math.random().toString(36).substr(2,6) + '.' + ext;
-      imgUrl = await uploadToStorage('review-images', path, rvImgFile);
+      const ext=rvImgFile.name.split('.').pop()||'jpg';
+      const path='reviews/'+Date.now()+'_'+Math.random().toString(36).substr(2,6)+'.'+ext;
+      imgUrl=await uploadToStorage('review-images',path,rvImgFile);
     }
-    const rv = {
-      id:          'r' + Date.now() + Math.random().toString(36).substr(2,5),
-      course_id:   curCourseId,
-      alias:       alias.substring(0,17),
-      description: desc.substring(0,180),
-      image_url:   imgUrl,
-      likes:       0,
-      dislikes:    0
-    };
-    await insertReview(rv);
+    await insertReview({id:'r'+Date.now()+Math.random().toString(36).substr(2,5),course_id:curCourseId,alias:alias.substring(0,17),description:desc.substring(0,180),image_url:imgUrl,likes:0,dislikes:0});
     showToast('¡Reseña publicada! ⭐','ok');
     resetRvForm();
     await loadReviews(curCourseId);
-  } catch(e){
-    console.error('submitReview error:', e);
-    showToast('Error: ' + (e.message||'inténtalo de nuevo'),'err');
-  }
-
-  btn.disabled = false;
-  btn.textContent = 'Publicar Reseña';
+  }catch(e){showToast('Error: '+(e.message||'inténtalo de nuevo'),'err');}
+  btn.disabled=false;btn.textContent='Publicar Reseña';
 }
-
-async function voteRv(courseId, reviewId, type, curLikes, curDislikes){
-  const dev     = getDeviceId();
-  const myVotes = await fetchMyVotes(courseId, dev);
-  const prev    = myVotes[reviewId] || null;
-  let likes = curLikes, dislikes = curDislikes;
-
+async function voteRv(courseId,reviewId,type,curLikes,curDislikes){
+  const dev=getDeviceId();
+  const myVotes=await fetchMyVotes(courseId,dev);
+  const prev=myVotes[reviewId]||null;
+  let likes=curLikes,dislikes=curDislikes;
   try{
-    if(prev === type){
-      if(type==='like') likes = Math.max(0,likes-1); else dislikes = Math.max(0,dislikes-1);
-      await deleteVote(reviewId, dev);
-    } else {
-      if(prev){ if(prev==='like') likes=Math.max(0,likes-1); else dislikes=Math.max(0,dislikes-1); }
-      if(type==='like') likes++; else dislikes++;
-      await upsertVote(reviewId, dev, type);
-    }
-    await updateReviewVotes(reviewId, likes, dislikes);
+    if(prev===type){if(type==='like')likes=Math.max(0,likes-1);else dislikes=Math.max(0,dislikes-1);await deleteVote(reviewId,dev);}
+    else{if(prev){if(prev==='like')likes=Math.max(0,likes-1);else dislikes=Math.max(0,dislikes-1);}if(type==='like')likes++;else dislikes++;await upsertVote(reviewId,dev,type);}
+    await updateReviewVotes(reviewId,likes,dislikes);
     await loadReviews(courseId);
-  } catch(e){
-    showToast('Error al votar','err');
-  }
+  }catch(e){showToast('Error al votar','err');}
 }
-
-async function delReview(courseId, reviewId){
-  if(!ownerMode) return;
-  try{
-    await deleteReviewDb(reviewId);
-    showToast('Reseña eliminada','ok');
-    await loadReviews(courseId);
-  } catch(e){
-    showToast('Error al borrar: ' + e.message,'err');
-  }
+async function delReview(courseId,reviewId){
+  if(!ownerMode)return;
+  try{await deleteReviewDb(reviewId);showToast('Reseña eliminada','ok');await loadReviews(courseId);}
+  catch(e){showToast('Error al borrar: '+e.message,'err');}
 }
-
 function previewRvImg(e){
-  const f = e.target.files[0];
-  if(!f) return;
-  if(f.size > 3 * 1024 * 1024){ showToast('Imagen muy grande (máx 3MB)','err'); return; }
-  rvImgFile = f;  // FIX: guardamos el File directamente
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const p = document.getElementById('rvPrevImg');
-    p.src = ev.target.result;
-    p.style.display = 'block';
-    document.getElementById('rvUpLbl').textContent = '✅ Imagen lista — ' + f.name;
-  };
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>3*1024*1024){showToast('Imagen muy grande (máx 3MB)','err');return;}
+  rvImgFile=f;
+  const reader=new FileReader();
+  reader.onload=ev=>{const p=document.getElementById('rvPrevImg');p.src=ev.target.result;p.style.display='block';document.getElementById('rvUpLbl').textContent='✅ Imagen lista — '+f.name;};
   reader.readAsDataURL(f);
 }
-
 function resetRvForm(){
-  document.getElementById('rvAlias').value  = '';
-  document.getElementById('rvDescIn').value = '';
-  document.getElementById('cntAlias').textContent = '0/17';
-  document.getElementById('cntDesc').textContent  = '0/180';
-  document.getElementById('rvPrevImg').style.display = 'none';
-  document.getElementById('rvImgIn').value = '';
-  document.getElementById('rvUpLbl').textContent = '📷 Adjuntar captura (opcional)';
-  rvImgFile = null;
+  document.getElementById('rvAlias').value='';document.getElementById('rvDescIn').value='';
+  document.getElementById('cntAlias').textContent='0/17';document.getElementById('cntDesc').textContent='0/180';
+  document.getElementById('rvPrevImg').style.display='none';document.getElementById('rvImgIn').value='';
+  document.getElementById('rvUpLbl').textContent='📷 Adjuntar captura (opcional)';rvImgFile=null;
 }
-
-function cntA(){ const v=document.getElementById('rvAlias').value.length; const el=document.getElementById('cntAlias'); el.textContent=v+'/17'; el.className='char-c'+(v>14?' warn':''); }
-function cntD(){ const v=document.getElementById('rvDescIn').value.length; const el=document.getElementById('cntDesc'); el.textContent=v+'/180'; el.className='char-c'+(v>155?' warn':''); }
+function cntA(){const v=document.getElementById('rvAlias').value.length;const el=document.getElementById('cntAlias');el.textContent=v+'/17';el.className='char-c'+(v>14?' warn':'');}
+function cntD(){const v=document.getElementById('rvDescIn').value.length;const el=document.getElementById('cntDesc');el.textContent=v+'/180';el.className='char-c'+(v>155?' warn':'');}
 
 /* ============================================================
-   IMÁGENES DE CURSOS — FIX: manejo completo con progreso
+   IMÁGENES DE CURSOS
 ============================================================ */
-function trigCardUpload(id){
-  if(!ownerMode) return;
-  cardUploadId = id;
-  document.getElementById('cardImgIn').click();
-}
-
+function trigCardUpload(id){if(!ownerMode)return;cardUploadId=id;document.getElementById('cardImgIn').click();}
 async function saveCardImg(e){
-  const f = e.target.files[0];
-  if(!f || !cardUploadId) return;
-  if(f.size > 5 * 1024 * 1024){ showToast('Imagen muy grande (máx 5MB)','err'); e.target.value=''; return; }
-
+  const f=e.target.files[0];if(!f||!cardUploadId)return;
+  if(f.size>5*1024*1024){showToast('Imagen muy grande (máx 5MB)','err');e.target.value='';return;}
   showToast('⬆ Subiendo imagen...','');
   try{
-    const ext  = f.name.split('.').pop() || 'jpg';
-    const path = 'courses/' + cardUploadId + '_' + Date.now() + '.' + ext;
-    const url  = await uploadToStorage('course-images', path, f);
-
-    await upsertCourseImg(cardUploadId, url);
-
-    // Actualizar caché
-    imgCache[cardUploadId] = url;
-
+    const ext=f.name.split('.').pop()||'jpg';
+    const path='courses/'+cardUploadId+'_'+Date.now()+'.'+ext;
+    const url=await uploadToStorage('course-images',path,f);
+    await upsertCourseImg(cardUploadId,url);
+    imgCache[cardUploadId]=url;
     showToast('✅ Captura guardada en la nube','ok');
-
-    // Si el modal está abierto con este curso, actualizar galería
-    if(curCourseId === cardUploadId){
-      const gal = document.getElementById('mGallery');
-      gal.innerHTML = `<img src="${url}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
-      gal.onclick = () => openLightboxUrl(url);
-    }
-
-    // Re-renderizar cards con imagen actualizada
-    renderCards();
-    reobserveReveal();
-
-  } catch(err){
-    console.error('saveCardImg error:', err);
-    showToast('Error al subir: ' + (err.message||'intenta de nuevo'),'err');
-  }
-
-  cardUploadId = null;
-  e.target.value = '';
+    if(curCourseId===cardUploadId){const gal=document.getElementById('mGallery');gal.innerHTML=`<img src="${url}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;gal.onclick=()=>openLightboxUrl(url);}
+    renderCards();reobserveReveal();
+  }catch(err){showToast('Error al subir: '+(err.message||'intenta de nuevo'),'err');}
+  cardUploadId=null;e.target.value='';
 }
-
-// FIX: Upload desde modal (conecta al mismo flujo que saveCardImg)
 async function uploadCourseImg(e){
-  if(!curCourseId){ showToast('No hay curso seleccionado','err'); return; }
-  const f = e.target.files[0];
-  if(!f) return;
-  if(f.size > 5 * 1024 * 1024){ showToast('Imagen muy grande (máx 5MB)','err'); e.target.value=''; return; }
-
-  const progress    = document.getElementById('uploadProgress');
-  const progressBar = document.getElementById('uploadProgressBar');
-  const status      = document.getElementById('uploadStatus');
-
-  progress.style.display = 'block';
-  status.textContent = 'Subiendo...';
-  progressBar.style.width = '30%';
-
+  if(!curCourseId){showToast('No hay curso seleccionado','err');return;}
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>5*1024*1024){showToast('Imagen muy grande (máx 5MB)','err');e.target.value='';return;}
+  const progress=document.getElementById('uploadProgress');
+  const progressBar=document.getElementById('uploadProgressBar');
+  const status=document.getElementById('uploadStatus');
+  progress.style.display='block';status.textContent='Subiendo...';progressBar.style.width='30%';
   try{
-    const ext  = f.name.split('.').pop() || 'jpg';
-    const path = 'courses/' + curCourseId + '_' + Date.now() + '.' + ext;
-
-    progressBar.style.width = '60%';
-    const url = await uploadToStorage('course-images', path, f);
-    progressBar.style.width = '85%';
-
-    await upsertCourseImg(curCourseId, url);
-    progressBar.style.width = '100%';
-    status.textContent = '✅ Imagen guardada';
-
-    // Actualizar caché y galería del modal
-    imgCache[curCourseId] = url;
-    const gal = document.getElementById('mGallery');
-    gal.innerHTML = `<img src="${url}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
-    gal.onclick = () => openLightboxUrl(url);
-
+    const ext=f.name.split('.').pop()||'jpg';
+    const path='courses/'+curCourseId+'_'+Date.now()+'.'+ext;
+    progressBar.style.width='60%';
+    const url=await uploadToStorage('course-images',path,f);
+    progressBar.style.width='85%';
+    await upsertCourseImg(curCourseId,url);
+    progressBar.style.width='100%';status.textContent='✅ Imagen guardada';
+    imgCache[curCourseId]=url;
+    const gal=document.getElementById('mGallery');
+    gal.innerHTML=`<img src="${url}" alt="Captura"><div class="modal-gallery-zoom">🔍</div><div class="modal-gallery-lbl">📷 CLIC PARA AMPLIAR</div>`;
+    gal.onclick=()=>openLightboxUrl(url);
     showToast('✅ Captura actualizada','ok');
-    renderCards();
-    reobserveReveal();
-
-    setTimeout(() => {
-      progress.style.display = 'none';
-      progressBar.style.width = '0%';
-      status.textContent = '';
-    }, 2000);
-
-  } catch(err){
-    console.error('uploadCourseImg error:', err);
-    progressBar.style.width = '0%';
-    status.textContent = '❌ ' + (err.message||'Error al subir');
-    showToast('Error: ' + (err.message||'intenta de nuevo'),'err');
-  }
-
-  e.target.value = '';
+    renderCards();reobserveReveal();
+    setTimeout(()=>{progress.style.display='none';progressBar.style.width='0%';status.textContent='';},2000);
+  }catch(err){progressBar.style.width='0%';status.textContent='❌ '+(err.message||'Error al subir');showToast('Error: '+(err.message||'intenta de nuevo'),'err');}
+  e.target.value='';
 }
 
 /* ============================================================
    OWNER
 ============================================================ */
-function openPwd(){
-  if(ownerMode){ logout(); return; }
-  document.getElementById('pwdModal').classList.add('active');
-  document.getElementById('pwdIn').value = '';
-  document.getElementById('pwdErr').style.display = 'none';
-  setTimeout(() => document.getElementById('pwdIn').focus(), 200);
-}
-function closePwd(){ document.getElementById('pwdModal').classList.remove('active'); }
+function openPwd(){if(ownerMode){logout();return;}document.getElementById('pwdModal').classList.add('active');document.getElementById('pwdIn').value='';document.getElementById('pwdErr').style.display='none';setTimeout(()=>document.getElementById('pwdIn').focus(),200);}
+function closePwd(){document.getElementById('pwdModal').classList.remove('active');}
 function checkPwd(){
-  if(document.getElementById('pwdIn').value === CONFIG.ownerPassword){
-    ownerMode = true;
-    document.body.classList.add('owner-mode');
-    document.getElementById('ownerBtn').classList.add('active');
-    document.getElementById('ownerBtn').textContent = '✅ ADMIN';
-    document.getElementById('ownerPanel').classList.add('vis');
-    closePwd();
-    showToast('✅ Modo admin activado','ok');
-  } else {
-    document.getElementById('pwdErr').style.display = 'block';
-    document.getElementById('pwdIn').value = '';
-    document.getElementById('pwdIn').focus();
-  }
+  if(document.getElementById('pwdIn').value===CONFIG.ownerPassword){
+    ownerMode=true;document.body.classList.add('owner-mode');
+    document.getElementById('ownerBtn').classList.add('active');document.getElementById('ownerBtn').textContent='✅ ADMIN';
+    document.getElementById('ownerPanel').classList.add('vis');closePwd();showToast('✅ Modo admin activado','ok');
+  }else{document.getElementById('pwdErr').style.display='block';document.getElementById('pwdIn').value='';document.getElementById('pwdIn').focus();}
 }
 function logout(){
-  ownerMode = false;
-  document.body.classList.remove('owner-mode');
-  document.getElementById('ownerBtn').classList.remove('active');
-  document.getElementById('ownerBtn').textContent = '⚙ ADMIN';
-  document.getElementById('ownerPanel').classList.remove('vis');
-  showToast('Sesión admin cerrada','');
+  ownerMode=false;document.body.classList.remove('owner-mode');
+  document.getElementById('ownerBtn').classList.remove('active');document.getElementById('ownerBtn').textContent='⚙ ADMIN';
+  document.getElementById('ownerPanel').classList.remove('vis');showToast('Sesión admin cerrada','');
 }
 
 /* ============================================================
    FACEBOOK
 ============================================================ */
-function contactFB(name){
-  const msg = encodeURIComponent(`¡Hola! Estoy interesado/a en el curso de *${name}* que vi en su página. ¿Me pueden dar información sobre precio y forma de pago? 🙌`);
-  window.open(CONFIG.facebook + '?_rdr', '_blank');
-}
+function contactFB(name){window.open(CONFIG.facebook,'_blank');}
 
 /* ============================================================
    UTILS
 ============================================================ */
-function esc(s){
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function showToast(msg, type=''){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'toast show ' + type;
-  clearTimeout(t._t);
-  t._t = setTimeout(() => { t.className = 'toast'; }, 3000);
-}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>{t.className='toast';},3000);}
+function animCounter(el,target,dur=2000){let s=0;const step=target/(dur/16);const t=setInterval(()=>{s+=step;if(s>=target){el.textContent=target+(target===24?'/7':'+');clearInterval(t);}else{el.textContent=Math.floor(s)+(target===24?'/7':'+');}},16);}
 
 /* ============================================================
-   COUNTERS
+   OBSERVERS
 ============================================================ */
-function animCounter(el, target, dur=2000){
-  let s = 0;
-  const step = target / (dur/16);
-  const t = setInterval(() => {
-    s += step;
-    if(s >= target){
-      el.textContent = target + (target===24?'/7':'+');
-      clearInterval(t);
-    } else {
-      el.textContent = Math.floor(s) + (target===24?'/7':'+');
-    }
-  }, 16);
-}
-
-/* ============================================================
-   REVEAL OBSERVER
-============================================================ */
-const revealObs = new IntersectionObserver((entries) => {
-  entries.forEach((e,i) => {
-    if(e.isIntersecting){ setTimeout(() => e.target.classList.add('vis'), i*80); revealObs.unobserve(e.target); }
-  });
-}, { threshold: 0.08 });
-
-const cntObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if(e.isIntersecting){ animCounter(e.target, parseInt(e.target.dataset.target)); cntObs.unobserve(e.target); }
-  });
-}, { threshold: 0.5 });
-
-function reobserveReveal(){
-  document.querySelectorAll('.course-card').forEach(el => {
-    if(!el.classList.contains('vis')){ el.classList.add('vis'); }
-  });
-}
+const revealObs=new IntersectionObserver((entries)=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('vis'),i*80);revealObs.unobserve(e.target);}});},{threshold:0.08});
+const cntObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){animCounter(e.target,parseInt(e.target.dataset.target));cntObs.unobserve(e.target);}});},{threshold:0.5});
+function reobserveReveal(){document.querySelectorAll('.course-card').forEach(el=>{if(!el.classList.contains('vis'))el.classList.add('vis');});}
 
 /* ============================================================
    PARALLAX
 ============================================================ */
-window.addEventListener('scroll', () => {
-  const h = document.querySelector('.hero');
-  if(h) h.style.transform = `translateY(${scrollY * 0.12}px)`;
-}, { passive: true });
+window.addEventListener('scroll',()=>{const h=document.querySelector('.hero');if(h)h.style.transform=`translateY(${scrollY*0.12}px)`;},{passive:true});
 
 /* ============================================================
-   CANVAS — PARTÍCULAS CYBERPUNK
+   CANVAS
 ============================================================ */
 (function(){
-  const cv  = document.getElementById('bg-canvas');
-  const ctx = cv.getContext('2d');
-  let W, H, pts = [];
-
-  function resize(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
-
-  const COLORS = ['#00f5ff','#7c3aed','#ff2d78','#00ff88'];
-
+  const cv=document.getElementById('bg-canvas'),ctx=cv.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  const COLORS=['#00f5ff','#7c3aed','#ff2d78','#00ff88'];
   class Pt{
-    constructor(){ this.reset(); }
-    reset(){
-      this.x  = Math.random()*W; this.y  = Math.random()*H;
-      this.r  = Math.random()*1.4 + 0.3;
-      this.vx = (Math.random()-0.5)*0.45; this.vy = (Math.random()-0.5)*0.45;
-      this.a  = Math.random()*0.5 + 0.1;
-      this.c  = COLORS[Math.floor(Math.random()*COLORS.length)];
-      this.pulse = Math.random()*Math.PI*2;
-    }
-    update(){
-      this.x += this.vx; this.y += this.vy; this.pulse += 0.02;
-      this._pa = this.a * (0.7 + 0.3*Math.sin(this.pulse));
-      if(this.x<-10||this.x>W+10||this.y<-10||this.y>H+10) this.reset();
-    }
-    draw(){
-      ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
-      ctx.fillStyle = this.c; ctx.globalAlpha = this._pa||this.a; ctx.fill();
-      ctx.globalAlpha = 1;
-    }
+    constructor(){this.reset();}
+    reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1.4+0.3;this.vx=(Math.random()-0.5)*0.45;this.vy=(Math.random()-0.5)*0.45;this.a=Math.random()*0.5+0.1;this.c=COLORS[Math.floor(Math.random()*COLORS.length)];this.pulse=Math.random()*Math.PI*2;}
+    update(){this.x+=this.vx;this.y+=this.vy;this.pulse+=0.02;this._pa=this.a*(0.7+0.3*Math.sin(this.pulse));if(this.x<-10||this.x>W+10||this.y<-10||this.y>H+10)this.reset();}
+    draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=this.c;ctx.globalAlpha=this._pa||this.a;ctx.fill();ctx.globalAlpha=1;}
   }
-
-  function init(){
-    pts = [];
-    const n = Math.min(120, Math.floor(W*H/7000));
-    for(let i=0;i<n;i++) pts.push(new Pt());
-  }
-
-  function lines(){
-    const md = 120;
-    for(let i=0;i<pts.length;i++){
-      for(let j=i+1;j<pts.length;j++){
-        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.sqrt(dx*dx+dy*dy);
-        if(d<md){
-          ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
-          ctx.strokeStyle=`rgba(0,245,255,${(1-d/md)*0.08})`; ctx.lineWidth=0.4; ctx.stroke();
-        }
-      }
-    }
-  }
-
-  let raf;
-  function frame(){ ctx.clearRect(0,0,W,H); pts.forEach(p=>{ p.update(); p.draw(); }); lines(); raf=requestAnimationFrame(frame); }
-
-  addEventListener('resize', () => { resize(); init(); });
-  resize(); init(); frame();
+  function init(){pts=[];const n=Math.min(120,Math.floor(W*H/7000));for(let i=0;i<n;i++)pts.push(new Pt());}
+  function lines(){const md=120;for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<md){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,245,255,${(1-d/md)*0.08})`;ctx.lineWidth=0.4;ctx.stroke();}}}}
+  function frame(){ctx.clearRect(0,0,W,H);pts.forEach(p=>{p.update();p.draw();});lines();requestAnimationFrame(frame);}
+  addEventListener('resize',()=>{resize();init();});
+  resize();init();frame();
 })();
 
 /* ============================================================
    INIT
 ============================================================ */
-(async () => {
-  // FIX: cargar TODAS las imágenes de una sola vez antes de renderizar cards
-  await fetchAllCourseImgs();
+(async()=>{
+  document.getElementById('bannerTitle').innerHTML=CONFIG.bannerTitle;
+  document.getElementById('bannerSub').textContent=CONFIG.bannerSub;
+  await Promise.all([fetchAllCourseImgs(),loadBannerImg()]);
   renderCards();
-
-  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-  document.querySelectorAll('[data-target]').forEach(el => cntObs.observe(el));
+  document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+  document.querySelectorAll('[data-target]').forEach(el=>cntObs.observe(el));
 })();
 </script>
 </body>
